@@ -2,6 +2,8 @@
 
 virtualenv .
 bin/pip install django
+bin/pip install elasticsearch
+bin/pip install feedparser
 
 [Running admin UI]
 
