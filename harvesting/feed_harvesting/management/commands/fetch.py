@@ -29,21 +29,25 @@ class Command(BaseCommand):
         for f in RssFeed.objects.all():
             print 'Parsing feed %s' % f.url
 
-            feed = feedparser.parse(f.url)
+            try:
+                feed = feedparser.parse(f.url)
 
-            parsed = urlparse(f.url)
+                parsed = urlparse(f.url)
 
-            for entry in feed.entries:
-                print 'Indexing article - %s' % entry.title 
+                for entry in feed.entries:
+                    print 'Indexing article - %s' % entry.title 
 
-                es.index(index="rss",
-                         doc_type="posting",
-                         body=dict(
-                             title=entry.title,
-                             link=entry.link,
-                             description=entry.description,
-                             published=datetime.datetime(*entry.published_parsed[0:6]),
-                             image=entry.enclosures[0].href if entry.enclosures else None,
-                             site=parsed.netloc,
-                         ),
-                         id=entry.id)
+                    es.index(index="rss",
+                             doc_type="posting",
+                             body=dict(
+                                 title=entry.title,
+                                 link=entry.link,
+                                 description=entry.description,
+                                 published=datetime.datetime(*entry.published_parsed[0:6]),
+                                 image=entry.enclosures[0].href if entry.enclosures else None,
+                                 site=parsed.netloc,
+                             ),
+                             id=entry.id)
+            except Exception as e:
+                print e
+                pass

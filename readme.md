@@ -7,7 +7,8 @@ bin/pip install feedparser
 
 [Running admin UI]
 
-bin/python manage.py runserver
+cd harvesting
+../bin/python manage.py runserver 0.0.0.0:8000 --insecure
 
 [Runnig feed harvester]
 
