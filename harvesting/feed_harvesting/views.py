@@ -38,3 +38,7 @@ class QueryFeed(Feed):
 
     def item_link(self, item):
         return item['_source']['link']
+
+    def item_categories(self, item):
+        return ('country=' + item['_source'].get('country', 'Malaysia'),
+                'publication_name=' + item['_source'].get('publication_name', None) or item['_source']['site'])

@@ -8,6 +8,8 @@ class RssFeed(models.Model):
     url = models.CharField(max_length=200)
     last_fetched = models.DateField(null=True, blank=True)
     errors = models.TextField(null=True, blank=True)
+    country = models.CharField(max_length=32, default='Malaysia')
+    publication_name = models.CharField(max_length=64, blank=True, null=True)
 
     def __unicode__(self):
         return '(%d) %s' % (self.id, self.url)

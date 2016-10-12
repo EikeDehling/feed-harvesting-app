@@ -46,6 +46,8 @@ class Command(BaseCommand):
                                  published=datetime.datetime(*entry.published_parsed[0:6]),
                                  image=entry.enclosures[0].href if entry.enclosures else None,
                                  site=parsed.netloc,
+                                 country=f.country,
+                                 publication_name=f.publication_name
                              ),
                              id=entry.id)
             except Exception as e:
