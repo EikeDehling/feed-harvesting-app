@@ -1,5 +1,6 @@
 from django.contrib.syndication.views import Feed
 import elasticsearch
+from datetime import datetime
 
 
 es = elasticsearch.Elasticsearch()
@@ -41,4 +42,9 @@ class QueryFeed(Feed):
 
     def item_categories(self, item):
         return ('country=' + item['_source'].get('country', 'Malaysia'),
-                'publication_name=' + item['_source'].get('publication_name', None) or item['_source']['site'])
+                'publication_name=' + (item['_source'].get('publication_name', None) or item['_source']['site']))
+
+    def item_pubdate(self, item):
+        # 2016-10-12T18:32:00
+        return datetime.strptime(item['_source']['published'], '%Y-%m-%dT%H:%M:%S')
+
