@@ -1,3 +1,8 @@
+import logging
+
+logging.basicConfig(filename='feed-fetcher.log',level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 from django.core.management.base import BaseCommand, CommandError
 from feed_harvesting.models import RssFeed
 
@@ -6,16 +11,24 @@ import feedparser
 import datetime
 from urlparse import urlparse
 import time
+import re
 
+p = re.compile(r'<.*?>')
+
+def asiaone_date_handler(date_string):
+    # Sunday, October 23, 2016 - 10:15
+    return time.strptime(p.sub('', date_string), "%A, %B %d, %Y - %H:%M")
 
 def thestar_date_handler(date_string):
     # Wed, 28 Sep 2016 17:00:00 +08:00
-    return time.strptime(date_string, "%a, %d %b %Y %H:%M:%S +08:00")
+    return time.strptime(date_string[:-7], "%a, %d %b %Y %H:%M:%S")
 
 def hmetro_date_handler(date_string):
+    # Sab, 22 Okt 2016 05:07:16 +0800
     # Kha, 29 Sep 2016 00:30:43 +0800
-    return time.strptime(date_string.split(',')[1], " %d %b %Y %H:%M:%S +0800")
+    return time.strptime(date_string[5:-6].replace('Okt', 'Oct'), "%d %b %Y %H:%M:%S")
 
+feedparser.registerDateHandler(asiaone_date_handler)
 feedparser.registerDateHandler(thestar_date_handler)
 feedparser.registerDateHandler(hmetro_date_handler)
 
@@ -27,7 +40,7 @@ class Command(BaseCommand):
         es = elasticsearch.Elasticsearch()
 
         for f in RssFeed.objects.all():
-            print 'Parsing feed %s' % f.url
+            logger.info('Parsing feed - %s' % f.url)
 
             try:
                 feed = feedparser.parse(f.url)
@@ -35,7 +48,7 @@ class Command(BaseCommand):
                 parsed = urlparse(f.url)
 
                 for entry in feed.entries:
-                    print 'Indexing article - %s' % entry.title 
+                    logger.debug('Indexing article - %s' % entry.title)
 
                     es.index(index="rss",
                              doc_type="posting",
@@ -49,7 +62,7 @@ class Command(BaseCommand):
                                  country=f.country,
                                  publication_name=f.publication_name
                              ),
-                             id=entry.id)
-            except Exception as e:
-                print e
-                pass
+                             id=getattr(entry, 'id', None) or entry.link)
+            except Exception:
+                date = entry.published if entry and hasattr(entry, 'published') else ''
+                logger.exception("Problem parsing feed (Date? %s)" % date)
