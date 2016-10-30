@@ -6,6 +6,8 @@ logger = logging.getLogger(__name__)
 from django.core.management.base import BaseCommand, CommandError
 from feed_harvesting.models import RssFeed
 
+from alchemyapi import AlchemyAPI
+
 import elasticsearch
 import feedparser
 import datetime
@@ -32,12 +34,12 @@ feedparser.registerDateHandler(asiaone_date_handler)
 feedparser.registerDateHandler(thestar_date_handler)
 feedparser.registerDateHandler(hmetro_date_handler)
 
-
 class Command(BaseCommand):
     help = 'Harvest all the feeds configured in the database'    
 
     def handle(self, *args, **options):
         es = elasticsearch.Elasticsearch()
+        alchemyapi = AlchemyAPI()
 
         for f in RssFeed.objects.all():
             logger.info('Parsing feed - %s' % f.url)
@@ -50,6 +52,14 @@ class Command(BaseCommand):
                 for entry in feed.entries:
                     logger.debug('Indexing article - %s' % entry.title)
 
+                    sentiment = 'neutral'
+                    try:
+                        response = alchemyapi.sentiment("text", entry.title + ' ' + entry.description)
+                        logger.debug("Sentiment: " + response["docSentiment"]["type"])
+                        sentiment = response["docSentiment"]["type"]
+                    except Exception, e:
+                        logger.exception("Problem getting sentiment :(")
+
                     es.index(index="rss",
                              doc_type="posting",
                              body=dict(
@@ -60,7 +70,8 @@ class Command(BaseCommand):
                                  image=entry.enclosures[0].href if entry.enclosures else None,
                                  site=parsed.netloc,
                                  country=f.country,
-                                 publication_name=f.publication_name
+                                 publication_name=f.publication_name,
+                                 sentiment=sentiment,
                              ),
                              id=getattr(entry, 'id', None) or entry.link)
             except Exception:
