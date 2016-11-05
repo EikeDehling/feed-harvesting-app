@@ -61,7 +61,6 @@ class Command(BaseCommand):
                                  site=parsed.netloc,
                                  country=f.country,
                                  publication_name=f.publication_name,
-                                 sentiment='neutral',
                              ),
                              id=getattr(entry, 'id', None) or entry.link)
 

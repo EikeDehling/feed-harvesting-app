@@ -27,7 +27,7 @@ class Command(BaseCommand):
                        "missing": { "field": "sentiment" }
                    },
                    {
-                       "range": { "published": { "gte" : "now-12d" } }
+                       "range": { "published": { "gte" : "now-2h" } }
                    }
                ]
            }
@@ -47,6 +47,6 @@ class Command(BaseCommand):
 
                 es.update(index="rss", doc_type="posting", id=p['_id'],
                           body={"doc": {"sentiment": sentiment}})
-            except Exception, e:
-                logger.exception("Problem getting sentiment :(")
+            except KeyError:
+                logger.exception("Problem getting sentiment :( %s" % response)
 
