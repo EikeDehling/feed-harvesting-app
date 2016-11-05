@@ -3,7 +3,7 @@ import elasticsearch
 from datetime import datetime
 
 
-es = elasticsearch.Elasticsearch()
+es = elasticsearch.Elasticsearch('https://admin:wgvwpjbb7lh@2bebb7bb13460ff94cbabd0d72274def.us-east-1.aws.found.io:9243')
 
 
 class QueryFeed(Feed):

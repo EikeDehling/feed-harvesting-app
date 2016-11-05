@@ -6,14 +6,13 @@ logger = logging.getLogger(__name__)
 from django.core.management.base import BaseCommand, CommandError
 from feed_harvesting.models import RssFeed
 
-from alchemyapi import AlchemyAPI
-
 import elasticsearch
 import feedparser
 import datetime
 from urlparse import urlparse
 import time
 import re
+import os
 
 p = re.compile(r'<.*?>')
 
@@ -38,8 +37,7 @@ class Command(BaseCommand):
     help = 'Harvest all the feeds configured in the database'    
 
     def handle(self, *args, **options):
-        es = elasticsearch.Elasticsearch()
-        alchemyapi = AlchemyAPI()
+        es = elasticsearch.Elasticsearch(os.environ['ES_URL'])
 
         for f in RssFeed.objects.all():
             logger.info('Parsing feed - %s' % f.url)
@@ -52,14 +50,6 @@ class Command(BaseCommand):
                 for entry in feed.entries:
                     logger.debug('Indexing article - %s' % entry.title)
 
-                    sentiment = 'neutral'
-                    try:
-                        response = alchemyapi.sentiment("text", entry.title + ' ' + entry.description)
-                        logger.debug("Sentiment: " + response["docSentiment"]["type"])
-                        sentiment = response["docSentiment"]["type"]
-                    except Exception, e:
-                        logger.exception("Problem getting sentiment :(")
-
                     es.index(index="rss",
                              doc_type="posting",
                              body=dict(
@@ -71,9 +61,10 @@ class Command(BaseCommand):
                                  site=parsed.netloc,
                                  country=f.country,
                                  publication_name=f.publication_name,
-                                 sentiment=sentiment,
+                                 sentiment='neutral',
                              ),
                              id=getattr(entry, 'id', None) or entry.link)
+
             except Exception:
                 date = entry.published if entry and hasattr(entry, 'published') else ''
                 logger.exception("Problem parsing feed (Date? %s)" % date)
