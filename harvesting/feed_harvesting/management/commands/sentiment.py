@@ -12,6 +12,9 @@ import elasticsearch
 import os
 es_url = os.environ['ES_URL']
 
+from langdetect import detect
+
+
 class Command(BaseCommand):
     help = 'Apply sentiment to all new incoming postings'    
 
@@ -34,15 +37,23 @@ class Command(BaseCommand):
         }
 
         res = es.search(index="rss", doc_type="posting", body=query)
-        logger.debug("%d documents found" % res['hits']['total'])
+        logger.info("%d documents found" % res['hits']['total'])
 
         for p in res['hits']['hits']:
 
-            logger.debug('Checking sentiment for - %s' % p['_id'])
+            logger.info('Checking sentiment for - %s' % p['_id'])
+            
+            analyzed_text = p['_source']['title'] + ' ' + p['_source']['description']
+
+            lang = detect(analyzed_text)
+
+            if lang not in ('en', 'de', 'fr', 'it', 'es', 'pt'):
+                logger.info('Skipping - wrong language - %s', lang)
+                continue
 
             try:
-                response = alchemyapi.sentiment("text", p['_source']['title'] + ' ' + p['_source']['description'])
-                logger.debug("Sentiment: " + response["docSentiment"]["type"])
+                response = alchemyapi.sentiment("text", analyzed_text)
+                logger.info("Sentiment: " + response["docSentiment"]["type"])
                 sentiment = response["docSentiment"]["type"]
 
                 es.update(index="rss", doc_type="posting", id=p['_id'],
