@@ -1,0 +1,47 @@
+"posting": {
+    "properties": {
+      "country": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "image": {
+        "index": "not_analyzed",
+        "type": "string",
+        "doc_values": false
+      },
+      "sentiment": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "site": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "publication_name": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "media_type": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "link": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "language": {
+        "index": "not_analyzed",
+        "type": "string"
+      },
+      "published": {
+        "format": "strict_date_optional_time||epoch_millis",
+        "type": "date"
+      },
+      "title": {
+        "type": "string"
+      }
+    }
+  }
