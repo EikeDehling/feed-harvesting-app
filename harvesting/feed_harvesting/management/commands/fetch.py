@@ -40,6 +40,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         es = elasticsearch.Elasticsearch(os.environ['ES_URL'])
 
+        today = datetime.date.today()
+        index = today.strftime('rss-%Y-%U')
+
         for f in RssFeed.objects.all():
             logger.info('Parsing feed - %s' % f.url)
 
@@ -52,7 +55,7 @@ class Command(BaseCommand):
                     logger.debug('Indexing article - %s' % entry.title)
 
                     try:
-                        es.create(index="rss",
+                        es.create(index=index,
                                  doc_type="posting",
                                  body=dict(
                                      title=entry.title,
