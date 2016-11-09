@@ -43,6 +43,8 @@ class Command(BaseCommand):
         today = datetime.date.today()
         index = today.strftime('rss-%Y-%U')
 
+        es.indices.create(index=index, ignore=400)
+
         for f in RssFeed.objects.all():
             logger.info('Parsing feed - %s' % f.url)
 
