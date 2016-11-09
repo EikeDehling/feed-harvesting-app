@@ -12,8 +12,6 @@ import elasticsearch
 import os
 es_url = os.environ['ES_URL']
 
-from langdetect import detect
-
 
 class Command(BaseCommand):
     help = 'Apply sentiment to all new incoming postings'    
@@ -26,30 +24,21 @@ class Command(BaseCommand):
         query = {
            "query": {
                "and": [
-                   {
-                       "missing": { "field": "sentiment" }
-                   },
-                   {
-                       "range": { "published": { "gte" : "now-2h" } }
-                   }
+                   { "missing": { "field": "sentiment" } },
+                   { "terms": { "language": ['en', 'de', 'fr', 'it', 'es', 'pt'] } },
+                   { "range": { "published": { "gte" : "now-2d" } } }
                ]
-           }
+           },
+           "size": 500
         }
 
         res = es.search(index="rss", doc_type="posting", body=query)
         logger.info("%d documents found" % res['hits']['total'])
 
         for p in res['hits']['hits']:
-
             logger.info('Checking sentiment for - %s' % p['_id'])
             
             analyzed_text = p['_source']['title'] + ' ' + p['_source']['description']
-
-            lang = detect(analyzed_text)
-
-            if lang not in ('en', 'de', 'fr', 'it', 'es', 'pt'):
-                logger.info('Skipping - wrong language - %s', lang)
-                continue
 
             try:
                 response = alchemyapi.sentiment("text", analyzed_text)

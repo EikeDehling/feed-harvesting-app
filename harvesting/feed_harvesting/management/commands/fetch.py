@@ -13,6 +13,7 @@ from urlparse import urlparse
 import time
 import re
 import os
+from langdetect import detect
 
 p = re.compile(r'<.*?>')
 
@@ -62,6 +63,7 @@ class Command(BaseCommand):
                                  country=f.country,
                                  publication_name=f.publication_name,
                                  media_type=f.media_type,
+                                 language=detect(entry.title + ' ' + entry.description)
                              ),
                              id=getattr(entry, 'id', None) or entry.link)
 
