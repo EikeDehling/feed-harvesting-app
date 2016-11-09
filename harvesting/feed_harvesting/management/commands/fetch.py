@@ -51,21 +51,24 @@ class Command(BaseCommand):
                 for entry in feed.entries:
                     logger.debug('Indexing article - %s' % entry.title)
 
-                    es.index(index="rss",
-                             doc_type="posting",
-                             body=dict(
-                                 title=entry.title,
-                                 link=entry.link,
-                                 description=entry.description,
-                                 published=datetime.datetime(*entry.published_parsed[0:6]),
-                                 image=entry.enclosures[0].href if entry.enclosures else None,
-                                 site=parsed.netloc,
-                                 country=f.country,
-                                 publication_name=f.publication_name,
-                                 media_type=f.media_type,
-                                 language=detect(entry.title + ' ' + entry.description)
-                             ),
-                             id=getattr(entry, 'id', None) or entry.link)
+                    try:
+                        es.create(index="rss",
+                                 doc_type="posting",
+                                 body=dict(
+                                     title=entry.title,
+                                     link=entry.link,
+                                     description=entry.description,
+                                     published=datetime.datetime(*entry.published_parsed[0:6]),
+                                     image=entry.enclosures[0].href if entry.enclosures else None,
+                                     site=parsed.netloc,
+                                     country=f.country,
+                                     publication_name=f.publication_name,
+                                     media_type=f.media_type,
+                                     language=detect(entry.title + ' ' + entry.description)
+                                 ),
+                                 id=getattr(entry, 'id', None) or entry.link)
+                    except Exception:
+                        logger.exception("Problem indexing doc")
 
             except Exception:
                 date = entry.published if entry and hasattr(entry, 'published') else ''
