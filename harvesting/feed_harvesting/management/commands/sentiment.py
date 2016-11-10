@@ -26,7 +26,7 @@ class Command(BaseCommand):
                "and": [
                    { "missing": { "field": "sentiment" } },
                    { "terms": { "language": ['en', 'de', 'fr', 'it', 'es', 'pt'] } },
-                   { "range": { "published": { "gte" : "now-2d" } } }
+                   { "range": { "published": { "gte" : "now-1d" } } }
                ]
            },
            "size": 500
@@ -45,7 +45,7 @@ class Command(BaseCommand):
                 logger.info("Sentiment: " + response["docSentiment"]["type"])
                 sentiment = response["docSentiment"]["type"]
 
-                es.update(index="rss", doc_type="posting", id=p['_id'],
+                es.update(index=p['_index'], doc_type=p['_type'], id=p['_id'],
                           body={"doc": {"sentiment": sentiment}})
             except KeyError:
                 logger.exception("Problem getting sentiment :( %s" % response)
