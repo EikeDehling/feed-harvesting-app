@@ -3,7 +3,7 @@ import logging
 logging.basicConfig(filename='feed-fetcher.log',level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from feed_harvesting.models import RssFeed
 
 import elasticsearch

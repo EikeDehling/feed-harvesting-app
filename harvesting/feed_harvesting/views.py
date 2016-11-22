@@ -1,9 +1,11 @@
 from django.contrib.syndication.views import Feed
+from django.views.generic import View
 import elasticsearch
 from datetime import datetime
+import os
 
 
-es = elasticsearch.Elasticsearch('https://admin:wgvwpjbb7lh@2bebb7bb13460ff94cbabd0d72274def.us-east-1.aws.found.io:9243')
+es = elasticsearch.Elasticsearch(os.environ['ES_URL'])
 
 
 class QueryFeed(Feed):
@@ -48,3 +50,21 @@ class QueryFeed(Feed):
         # 2016-10-12T18:32:00
         return datetime.strptime(item['_source']['published'], '%Y-%m-%dT%H:%M:%S')
 
+
+class CreateReportView(View):
+    def post(self, request, *args, **kwargs):
+        title = request.GET['title']
+        query = request.GET['query']
+        id = request.GET['id']
+
+        es.create(index='.kibana',
+                  doc_type="search",
+                  id=id,
+                  body=dict(
+                      title=title,
+                      kibanaSavedObjectMeta= {
+                          "searchSourceJSON": "{\"index\": \"rss-*\", \"query\": \"{0}\"}".format(query)
+                      }
+                  ))
+
+        pass

@@ -16,9 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-from feed_harvesting.views import QueryFeed
+from feed_harvesting.views import QueryFeed, CreateReportView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^feed/', QueryFeed()),
+    url(r'^create_report/', CreateReportView())
 ]
