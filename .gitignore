@@ -87,3 +87,11 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+.idea
+bin
+lib
+share
+local
+pip-selfcheck.json
+feed-harvesting-app.iml
