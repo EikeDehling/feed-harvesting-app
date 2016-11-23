@@ -1,11 +1,16 @@
 from django.contrib.syndication.views import Feed
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
+from django.http import HttpResponseBadRequest, HttpResponse
 import elasticsearch
 from datetime import datetime
 import os
 
+from . import forms, kibana_helper
 
-es = elasticsearch.Elasticsearch(os.environ['ES_URL'])
+
+es = elasticsearch.Elasticsearch(os.environ.get('ES_URL', None))
 
 
 class QueryFeed(Feed):
@@ -51,58 +56,20 @@ class QueryFeed(Feed):
         return datetime.strptime(item['_source']['published'], '%Y-%m-%dT%H:%M:%S')
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class CreateReportView(View):
     def post(self, request, *args, **kwargs):
-        title = request.GET['title']
-        query = request.GET['query']
-        email = request.GET['email']
+        form = forms.CreateReportForm(request.POST)
+
+        if not form.is_valid():
+            return HttpResponseBadRequest(form.errors.as_json())
 
         saved_search_id = 123
         volume_chart_id = 234
         dashboard_id = 345
 
-        # Create saved search
-        es.create(index='.kibana',
-                  doc_type="search",
-                  id=saved_search_id,
-                  body=dict(
-                      title=title,
-                      kibanaSavedObjectMeta= {
-                          "searchSourceJSON": "{\"index\": \"rss-*\", \"query\": \"{0}\"}".format(query)
-                      }
-                  ))
+        kibana_helper.create_saved_search(es, saved_search_id, form.title, form.query)
+        kibana_helper.create_volume_chart(es, volume_chart_id, saved_search_id, form.title)
+        kibana_helper.create_dashboard(es, dashboard_id, volume_chart_id, form.title)
 
-        # Create volume chart
-        es.create(index='.kibana',
-                  doc_type="visualization",
-                  id=volume_chart_id,
-                  body=dict(
-                      title=title,
-                      visState="{\"title\":\"{0}\",\"type\":\"histogram\",\"params\":{\"shareYAxis\":true,\"addTooltip\":true,\"addLegend\":true,\"scale\":\"linear\",\"mode\":\"stacked\",\"times\":[],\"addTimeMarker\":false,\"defaultYExtents\":false,\"setYExtents\":false,\"yAxis\":{}},\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"published\",\"interval\":\"auto\",\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{}}}],\"listeners\":{}}".format(title),
-                      uiStateJSON=dict(),
-                      description="",
-                      savedSearchId=saved_search_id,
-                      version=1,
-                      kibanaSavedObjectMeta=dict(
-                          searchSourceJSON="{\"filter\":[]}"
-                      )
-                  ))
-
-        # Create dasshboard
-        es.create(index='.kibana',
-                  doc_type="search",
-                  id=dashboard_id,
-                  body=dict(
-                      title=title,
-                      panelsJSON="[{\"id\":\"{0}\",\"type\":\"visualization\",\"panelIndex\":1,\"size_x\":10,\"size_y\":4,\"col\":1,\"row\":1}]".format(volume_chart_id),
-                      optionsJSON="{\"darkTheme\":false}",
-                      uiStateJSON="{\"P-1\":{\"vis\":{\"legendOpen\":false}}}",
-                      timeRestore=True,
-                      timeTo="now",
-                      timeFrom="now-7d",
-                      kibanaSavedObjectMeta=dict(
-                          searchSourceJSON="{\"filter\":[{\"query\":{\"query_string\":{\"query\":\"*\",\"analyze_wildcard\":true}}}]}"
-                      )
-                  ))
-
-        return "Dashboard created succesfully!"
+        return HttpResponse("Succes")

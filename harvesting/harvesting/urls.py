@@ -21,5 +21,5 @@ from feed_harvesting.views import QueryFeed, CreateReportView
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^feed/', QueryFeed()),
-    url(r'^create_report/', CreateReportView())
+    url(r'^create_report/', CreateReportView.as_view())
 ]
