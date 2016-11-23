@@ -55,11 +55,16 @@ class CreateReportView(View):
     def post(self, request, *args, **kwargs):
         title = request.GET['title']
         query = request.GET['query']
-        id = request.GET['id']
+        email = request.GET['email']
 
+        saved_search_id = 123
+        volume_chart_id = 234
+        dashboard_id = 345
+
+        # Create saved search
         es.create(index='.kibana',
                   doc_type="search",
-                  id=id,
+                  id=saved_search_id,
                   body=dict(
                       title=title,
                       kibanaSavedObjectMeta= {
@@ -67,4 +72,37 @@ class CreateReportView(View):
                       }
                   ))
 
-        pass
+        # Create volume chart
+        es.create(index='.kibana',
+                  doc_type="visualization",
+                  id=volume_chart_id,
+                  body=dict(
+                      title=title,
+                      visState="{\"title\":\"{0}\",\"type\":\"histogram\",\"params\":{\"shareYAxis\":true,\"addTooltip\":true,\"addLegend\":true,\"scale\":\"linear\",\"mode\":\"stacked\",\"times\":[],\"addTimeMarker\":false,\"defaultYExtents\":false,\"setYExtents\":false,\"yAxis\":{}},\"aggs\":[{\"id\":\"1\",\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"published\",\"interval\":\"auto\",\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{}}}],\"listeners\":{}}".format(title),
+                      uiStateJSON=dict(),
+                      description="",
+                      savedSearchId=saved_search_id,
+                      version=1,
+                      kibanaSavedObjectMeta=dict(
+                          searchSourceJSON="{\"filter\":[]}"
+                      )
+                  ))
+
+        # Create dasshboard
+        es.create(index='.kibana',
+                  doc_type="search",
+                  id=dashboard_id,
+                  body=dict(
+                      title=title,
+                      panelsJSON="[{\"id\":\"{0}\",\"type\":\"visualization\",\"panelIndex\":1,\"size_x\":10,\"size_y\":4,\"col\":1,\"row\":1}]".format(volume_chart_id),
+                      optionsJSON="{\"darkTheme\":false}",
+                      uiStateJSON="{\"P-1\":{\"vis\":{\"legendOpen\":false}}}",
+                      timeRestore=True,
+                      timeTo="now",
+                      timeFrom="now-7d",
+                      kibanaSavedObjectMeta=dict(
+                          searchSourceJSON="{\"filter\":[{\"query\":{\"query_string\":{\"query\":\"*\",\"analyze_wildcard\":true}}}]}"
+                      )
+                  ))
+
+        return "Dashboard created succesfully!"
