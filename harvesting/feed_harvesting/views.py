@@ -1,7 +1,8 @@
 from django.contrib.syndication.views import Feed
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import View
+from django.views.generic import View, TemplateView
+from django.views.generic.edit import FormView
 from django.http import HttpResponseBadRequest, HttpResponse
 import elasticsearch
 from datetime import datetime
@@ -18,7 +19,7 @@ class QueryFeed(Feed):
     link = "/feed/"
     description = "Rss feed of articles"
 
-    def get_object(self, request):
+    def get_object(self, request, *args, **kwargs):
         return request.GET.get('query', '*')
 
     def title(self, query):
@@ -56,20 +57,26 @@ class QueryFeed(Feed):
         return datetime.strptime(item['_source']['published'], '%Y-%m-%dT%H:%M:%S')
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class CreateReportView(View):
-    def post(self, request, *args, **kwargs):
-        form = forms.CreateReportForm(request.POST)
+class SignupView(FormView):
 
-        if not form.is_valid():
-            return HttpResponseBadRequest(form.errors.as_json())
+    template_name = "signup.html"
+    success_url = "/success/"
+    form_class = forms.CreateReportForm
 
-        saved_search_id = 123
-        volume_chart_id = 234
-        dashboard_id = 345
+    def form_valid(self, form):
+        # Form filled in correct ; create the report and redirect to success page
 
-        kibana_helper.create_saved_search(es, saved_search_id, form.title, form.query)
-        kibana_helper.create_volume_chart(es, volume_chart_id, saved_search_id, form.title)
-        kibana_helper.create_dashboard(es, dashboard_id, volume_chart_id, form.title)
+        saved_search_id = kibana_helper.create_saved_search(es, form.cleaned_data['title'],
+                                                            form.cleaned_data['query'])
 
-        return HttpResponse("Succes")
+        volume_chart_id = kibana_helper.create_volume_chart(es, saved_search_id, form.cleaned_data['title'])
+        sentiment_chart_id = kibana_helper.create_sentiment_chart(es, saved_search_id, form.cleaned_data['title'])
+
+        dashboard_id = kibana_helper.create_dashboard(es, volume_chart_id, sentiment_chart_id,
+                                                      form.cleaned_data['title'])
+
+        return super(SignupView, self).form_valid(form)
+
+
+class SuccessView(TemplateView):
+    template_name = "success.html"
