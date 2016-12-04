@@ -5,7 +5,7 @@ import elasticsearch
 from datetime import datetime
 import os
 
-from . import forms, kibana_helper
+from . import forms, kibana_helper, skedler_helper
 
 
 es = elasticsearch.Elasticsearch(os.environ.get('ES_URL', None))
@@ -71,6 +71,8 @@ class SignupView(FormView):
 
         dashboard_id = kibana_helper.create_dashboard(es, volume_chart_id, sentiment_chart_id,
                                                       form.cleaned_data['title'])
+
+        skedler_helper.schedule_report(es, form.cleaned_data['title'], dashboard_id)
 
         return super(SignupView, self).form_valid(form)
 
