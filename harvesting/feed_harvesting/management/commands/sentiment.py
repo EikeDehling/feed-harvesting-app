@@ -29,7 +29,7 @@ class Command(BaseCommand):
                    { "range": { "published": { "gte" : "now-1d" } } }
                ]
            },
-           "size": 500
+           "size": 100
         }
 
         res = es.search(index="rss", doc_type="posting", body=query)
