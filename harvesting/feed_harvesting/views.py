@@ -1,9 +1,14 @@
 from django.contrib.syndication.views import Feed
+from django.views.generic import TemplateView
+from django.views.generic.edit import FormView
 import elasticsearch
 from datetime import datetime
+import os
+
+from . import forms, kibana_helper, skedler_helper
 
 
-es = elasticsearch.Elasticsearch('https://admin:wgvwpjbb7lh@2bebb7bb13460ff94cbabd0d72274def.us-east-1.aws.found.io:9243')
+es = elasticsearch.Elasticsearch(os.environ.get('ES_URL', None))
 
 
 class QueryFeed(Feed):
@@ -11,7 +16,7 @@ class QueryFeed(Feed):
     link = "/feed/"
     description = "Rss feed of articles"
 
-    def get_object(self, request):
+    def get_object(self, request, *args, **kwargs):
         return request.GET.get('query', '*')
 
     def title(self, query):
@@ -48,3 +53,29 @@ class QueryFeed(Feed):
         # 2016-10-12T18:32:00
         return datetime.strptime(item['_source']['published'], '%Y-%m-%dT%H:%M:%S')
 
+
+class SignupView(FormView):
+
+    template_name = "signup.html"
+    success_url = "/success/"
+    form_class = forms.CreateReportForm
+
+    def form_valid(self, form):
+        # Form filled in correct ; create the report and redirect to success page
+
+        saved_search_id = kibana_helper.create_saved_search(es, form.cleaned_data['title'],
+                                                            form.cleaned_data['query'])
+
+        volume_chart_id = kibana_helper.create_volume_chart(es, saved_search_id, form.cleaned_data['title'])
+        sentiment_chart_id = kibana_helper.create_sentiment_chart(es, saved_search_id, form.cleaned_data['title'])
+
+        dashboard_id = kibana_helper.create_dashboard(es, volume_chart_id, sentiment_chart_id,
+                                                      form.cleaned_data['title'])
+
+        skedler_helper.schedule_report(es, form.cleaned_data['title'], dashboard_id)
+
+        return super(SignupView, self).form_valid(form)
+
+
+class SuccessView(TemplateView):
+    template_name = "success.html"

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign up!</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="form-style-5">
+        <form action="/signup/" method="post">
+            {% csrf_token %}
+
+
+            <legend><span class="number">1</span> Report settings</legend>
+
+            <label for="title">Title: </label>
+            <input id="title" type="text" name="title"
+                   {% if form.title.value %}
+                        value="{{ form.title.value }}"
+                   {% else %}
+                        placeholder="Enter title.."
+                   {% endif %} >
+            <div class="errors">
+                {% if form.title.errors %}
+                    {% for error in form.title.errors %}
+                        <strong>{{ error|escape }}</strong>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <label for="query">Keywords: </label>
+            <input id="query" type="text" name="query"
+                   {% if form.query.value %}
+                        value="{{ form.query.value }}"
+                   {% else %}
+                        placeholder="Enter query.."
+                   {% endif %} >
+            <div class="errors">
+                {% if form.query.errors %}
+                    {% for error in form.query.errors %}
+                        <strong>{{ error|escape }}</strong>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+
+            <legend><span class="number">2</span> Contact info</legend>
+
+            <label for="name">Name: </label>
+            <input id="name" type="text" name="name"
+                   {% if form.name.value %}
+                        value="{{ form.name.value }}"
+                   {% else %}
+                        placeholder="Enter name.."
+                   {% endif %} >
+            <div class="errors">
+                {% if form.name.errors %}
+                    {% for error in form.name.errors %}
+                        <strong>{{ error|escape }}</strong>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <label for="email">Email: </label>
+            <input id="email" type="text" name="email"
+                   {% if form.email.value %}
+                        value="{{ form.email.value }}"
+                   {% else %}
+                        placeholder="Enter email.."
+                   {% endif %} >
+            <div class="errors">
+                {% if form.email.errors %}
+                    {% for error in form.email.errors %}
+                        <strong>{{ error|escape }}</strong>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <label for="company">Company: </label>
+            <input id="company" type="text" name="company"
+                    {% if form.company.value %}
+                        value="{{ form.company.value }}"
+                    {% else %}
+                        placeholder="Enter company (optional).."
+                    {% endif %} >
+            <div class="errors">
+                {% if form.company.errors %}
+                    {% for error in form.company.errors %}
+                        <strong>{{ error|escape }}</strong>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+
+            <input type="submit" value="Sign up">
+        </form>
+    </div>
+</body>
+</html>
