@@ -1,7 +1,7 @@
 
 def schedule_report(es, title, dashboard_id):
-    result = es.index(index='.kibana',
-                  doc_type="dashboard",
+    result = es.index(index='.skedler',
+                  doc_type="jobs",
                   body={
                       "title": title,
                       "kibana_object_type": "dashboard",

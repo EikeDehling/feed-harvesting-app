@@ -1,6 +1,6 @@
 import json
 
-INDEX_PATTERN = 'rss'
+INDEX_PATTERN = 'rss-*'
 
 def create_saved_search(es, title, query):
     result = es.index(index='.kibana',
