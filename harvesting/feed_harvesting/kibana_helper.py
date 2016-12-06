@@ -78,7 +78,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id, ti
             "id": sentiment_chart_id,
             "type": "visualization",
             "panelIndex": 2,
-            "size_x": 6,
+            "size_x": 5,
             "size_y": 4,
             "col": 1,
             "row": 5
@@ -87,9 +87,9 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id, ti
             "id": sites_chart_id,
             "type": "visualization",
             "panelIndex": 3,
-            "size_x": 6,
+            "size_x": 5,
             "size_y": 4,
-            "col": 5,
+            "col": 6,
             "row": 5
         }
     ]
