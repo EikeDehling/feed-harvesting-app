@@ -70,8 +70,9 @@ class SignupView(FormView):
 
         volume_chart_id = kibana_helper.create_volume_chart(es, saved_search_id, form.cleaned_data['title'])
         sentiment_chart_id = kibana_helper.create_sentiment_chart(es, saved_search_id, form.cleaned_data['title'])
+        sites_chart_id = kibana_helper.create_top_sites_chart(es, saved_search_id, form.cleaned_data['title'])
 
-        dashboard_id = kibana_helper.create_dashboard(es, volume_chart_id, sentiment_chart_id,
+        dashboard_id = kibana_helper.create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id,
                                                       form.cleaned_data['title'])
 
         skedler_helper.schedule_report(es, form.cleaned_data['title'], dashboard_id)

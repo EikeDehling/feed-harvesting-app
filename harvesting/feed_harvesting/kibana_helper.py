@@ -48,7 +48,22 @@ def create_sentiment_chart(es, saved_search_id, title):
     return result['_id']
 
 
-def create_dashboard(es, volume_chart_id, sentiment_chart_id, title):
+def create_top_sites_chart(es, saved_search_id, title):
+    result = es.index(index='.kibana',
+                      doc_type="visualization",
+                      body={
+                          "title": title,
+                          "visState": '{"title":"%s","type":"table","params":{"perPage":15,"showPartialRows":false,"showMeticsAtAllLevels":true},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"bucket","params":{"field":"site","size":24,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title,
+                          "uiStateJSON": "{}",
+                          "savedSearchId": saved_search_id,
+                          "kibanaSavedObjectMeta": {
+                              "searchSourceJSON": '{"filter":[],"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"require_field_match":false,"fragment_size":2147483647}}}'
+                          }
+                      })
+    return result['_id']
+
+
+def create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id, title):
     panels_json = [
         {
             "id": volume_chart_id,
@@ -66,6 +81,15 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, title):
             "size_x": 6,
             "size_y": 4,
             "col": 1,
+            "row": 5
+        },
+        {
+            "id": sites_chart_id,
+            "type": "visualization",
+            "panelIndex": 3,
+            "size_x": 6,
+            "size_y": 4,
+            "col": 5,
             "row": 5
         }
     ]
@@ -85,3 +109,6 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, title):
                           }
                       ))
     return result['_id']
+
+
+
