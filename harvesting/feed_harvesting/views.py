@@ -1,6 +1,8 @@
 from django.contrib.syndication.views import Feed
+from django.template.loader import render_to_string
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
+from django.core.mail import send_mail
 import elasticsearch
 from datetime import datetime
 import os
@@ -73,6 +75,14 @@ class SignupView(FormView):
                                                       form.cleaned_data['title'])
 
         skedler_helper.schedule_report(es, form.cleaned_data['title'], dashboard_id)
+
+        send_mail(
+            'Welcome to reportly',
+            render_to_string('success_mail.txt', context={'name':form.cleaned_data['name']}),
+            'Reportly <daan@mediamatters.asia>',
+            [form.cleaned_data['email']],
+            fail_silently=False
+        )
 
         return super(SignupView, self).form_valid(form)
 
