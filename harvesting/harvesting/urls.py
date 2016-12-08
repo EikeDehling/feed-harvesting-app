@@ -16,11 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-from feed_harvesting.views import QueryFeed, SignupView, SuccessView
+from feed_harvesting.views import SignupView, SuccessView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^feed/', QueryFeed()),
     url(r'^signup/', SignupView.as_view()),
     url(r'^success/', SuccessView.as_view())
 ]

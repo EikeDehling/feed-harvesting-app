@@ -1,6 +1,8 @@
 import json
 
+
 INDEX_PATTERN = 'rss-*'
+
 
 def create_saved_search(es, title, query):
     result = es.index(index='.kibana',
@@ -63,7 +65,41 @@ def create_top_sites_chart(es, saved_search_id, title):
     return result['_id']
 
 
-def create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id, title):
+def create_tagcloud_chart(es, saved_search_id, title):
+    result = es.index(index='.kibana',
+                      doc_type="visualization",
+                      body=dict(
+                          title=title,
+                          visState='{"title":"%s","type":"tagcloud","params":{"textScale":"linear","orientations":1,"fromDegree":0,"toDegree":0,"font":"serif","fontStyle":"normal","fontWeight":"normal","timeInterval":500,"spiral":"archimedean","minFontSize":18,"maxFontSize":72},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"significant_terms","schema":"segment","params":{"field":"title","size":50}}],"listeners":{}}' % title,
+                          uiStateJSON='{"spy":{"mode":{"name":null,"fill":false}}}',
+                          description='',
+                          savedSearchId=saved_search_id,
+                          kibanaSavedObjectMeta=dict(
+                              searchSourceJSON='{"filter":[]}'
+                          )
+                      ))
+    return result['_id']
+
+
+def create_languages_chart(es, saved_search_id, title):
+    result = es.index(index='.kibana',
+                      doc_type="visualization",
+                      body=dict(
+                          title=title,
+                          visState='{"title":"%s","type":"pie","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"isDonut":false},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"segment","params":{"field":"lanuage","size":5,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title,
+                          uiStateJSON='{}',
+                          description="",
+                          savedSearchId=saved_search_id,
+                          version=1,
+                          kibanaSavedObjectMeta=dict(
+                              searchSourceJSON='{"filter":[]}'
+                          )
+                      ))
+    return result['_id']
+
+
+def create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id, tagcloud_chart_id,
+                     languages_chart_id, title):
     panels_json = [
         {
             "id": volume_chart_id,
@@ -91,6 +127,24 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id, ti
             "size_y": 4,
             "col": 6,
             "row": 5
+        },
+        {
+            "id": tagcloud_chart_id,
+            "type": "visualization",
+            "panelIndex": 4,
+            "size_x": 5,
+            "size_y": 4,
+            "col": 1,
+            "row": 9
+        },
+        {
+            "id": languages_chart_id,
+            "type": "visualization",
+            "panelIndex": 5,
+            "size_x": 5,
+            "size_y": 4,
+            "col": 6,
+            "row": 9
         }
     ]
 
@@ -105,10 +159,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id, ti
                           timeTo="now",
                           timeFrom="now-7d",
                           kibanaSavedObjectMeta={
-                              'searchSourceJSON': '{"filter":[{"query":{"query_string":{"query":"*","analyze_wildcard":true}}}]}'
+                              'searchSourceJSON': '{"filter":[]}'
                           }
                       ))
     return result['_id']
-
-
-
