@@ -159,7 +159,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id, ta
                           timeTo="now",
                           timeFrom="now-7d",
                           kibanaSavedObjectMeta={
-                              'searchSourceJSON': '{"filter":[]}'
+                              'searchSourceJSON': '{"filter":[{"query":{"query_string":{"query":"*","analyze_wildcard":true}}}]}'
                           }
                       ))
     return result['_id']
