@@ -86,7 +86,7 @@ def create_languages_chart(es, saved_search_id, title):
                       doc_type="visualization",
                       body=dict(
                           title=title,
-                          visState='{"title":"%s","type":"pie","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"isDonut":false},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"segment","params":{"field":"lanuage","size":5,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title,
+                          visState='{"title":"%s","type":"pie","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"isDonut":false},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"segment","params":{"field":"language","size":5,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title,
                           uiStateJSON='{}',
                           description="",
                           savedSearchId=saved_search_id,
