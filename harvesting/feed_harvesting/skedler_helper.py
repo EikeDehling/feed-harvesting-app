@@ -1,5 +1,19 @@
+import time
+
 
 def schedule_report(es, title, dashboard_id):
+    # Schedule the report to me emailed at now + 5 minutes
+    ts = time.localtime(time.time() + 60*5)
+
+    min = ts[4]
+    hour = ts[3]
+    day_of_week = ts[6]
+
+    cron_line = '{min} {hour} * * {day_of_week}'\
+        .format(min=min, hour=hour, day_of_week=day_of_week)
+
+    weekdays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+
     result = es.index(index='.skedler',
                   doc_type="jobs",
                   body={
@@ -32,14 +46,12 @@ def schedule_report(es, title, dashboard_id):
                       "includefilter": False,
                       "cron": [
                           {
-                              "Hours": 9,
+                              "cron": cron_line,
+                              "Minutes": min,
+                              "Hours": hour,
+                              "weekdays": [weekdays[day_of_week]],
                               "type": "Weekly",
-                              "timerange": "_g=(time:(from:now%2Fw,mode:quick,to:now%2Fw))",
-                              "weekdays": [
-                                  "MON"
-                              ],
-                              "cron": "0 0 9  * * MON",
-                              "Minutes": 0
+                              "timerange": "_g=(time:(from:now%2Fw,mode:quick,to:now%2Fw))"
                           }
                       ],
                       "useDashboardTime": True,
