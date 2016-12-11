@@ -10,7 +10,7 @@ from alchemyapi import AlchemyAPI
 import elasticsearch
 
 import os
-es_url = os.environ['ES_URL']
+es_url = os.environ.get('ES_URL', 'http://localhost:9200')
 
 
 class Command(BaseCommand):

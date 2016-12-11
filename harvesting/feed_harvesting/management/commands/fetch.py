@@ -38,7 +38,7 @@ class Command(BaseCommand):
     help = 'Harvest all the feeds configured in the database'    
 
     def handle(self, *args, **options):
-        es = elasticsearch.Elasticsearch(os.environ['ES_URL'])
+        es = elasticsearch.Elasticsearch(os.environ('ES_URL', 'http://localhost:9200'))
 
         today = datetime.date.today()
         index = today.strftime('rss-%Y-%U')

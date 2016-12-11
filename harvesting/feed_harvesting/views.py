@@ -8,7 +8,7 @@ import os
 from . import forms, kibana_helper, skedler_helper
 
 
-es = elasticsearch.Elasticsearch(os.environ.get('ES_URL', None))
+es = elasticsearch.Elasticsearch(os.environ.get('ES_URL', 'http://localhost:9200'))
 
 
 class SignupView(FormView):
