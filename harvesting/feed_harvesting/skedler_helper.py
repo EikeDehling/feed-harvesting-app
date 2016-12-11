@@ -1,7 +1,7 @@
 import time
 
 
-def schedule_report(es, title, dashboard_id):
+def schedule_report(es, title, email, dashboard_id):
     # Schedule the report to me emailed at now + 5 minutes
     ts = time.localtime(time.time() + 60*5)
 
@@ -57,8 +57,8 @@ def schedule_report(es, title, dashboard_id):
                       "useDashboardTime": True,
                       "emailDetails": {
                             "cc": "e.e.dehling@gmail.com",
-                            "to": "daan@mediamatters.asia",
-                            "message": "Hi\nCheck out the report\nThanks",
+                            "to": email,
+                            "message": "Hi\nCheck out your report\nThanks",
                             "subject": title,
                             "format": "pdf"
                       },

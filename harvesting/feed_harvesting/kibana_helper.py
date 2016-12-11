@@ -137,15 +137,15 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id, ta
             "col": 1,
             "row": 9
         },
-        #{
-        #    "id": tagcloud_chart_id,
-        #    "type": "visualization",
-        #    "panelIndex": 5,
-        #    "size_x": 5,
-        #    "size_y": 4,
-        #    "col": 6,
-        #    "row": 9
-        #}
+        {
+            "id": tagcloud_chart_id,
+            "type": "visualization",
+            "panelIndex": 5,
+            "size_x": 5,
+            "size_y": 4,
+            "col": 6,
+            "row": 9
+        }
     ]
 
     result = es.index(index='.kibana',
