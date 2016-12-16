@@ -33,7 +33,7 @@ class SignupView(FormView):
                                                       tagcloud_chart_id, languages_chart_id,
                                                       form.cleaned_data['title'])
 
-        skedler_helper.schedule_report(es, form.cleaned_data['title'], dashboard_id)
+        skedler_helper.schedule_report(es, form.cleaned_data['title'], form.cleaned_data['email'], dashboard_id)
 
         send_mail(
             'Welcome to reportly',
