@@ -21,7 +21,7 @@ def create_volume_chart(es, saved_search_id, title):
                       doc_type="visualization",
                       body=dict(
                           title=title,
-                          visState='{"title":"%s","type":"histogram","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"scale":"linear","mode":"stacked","times":[],"addTimeMarker":false,"defaultYExtents":false,"setYExtents":false,"yAxis":{}},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"date_histogram","schema":"segment","params":{"field":"published","interval":"auto","customInterval":"2h","min_doc_count":1,"extended_bounds":{}}}],"listeners":{}}' % title,
+                          visState='{"title":"%s - volume","type":"histogram","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"scale":"linear","mode":"stacked","times":[],"addTimeMarker":false,"defaultYExtents":false,"setYExtents":false,"yAxis":{}},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"date_histogram","schema":"segment","params":{"field":"published","interval":"auto","customInterval":"2h","min_doc_count":1,"extended_bounds":{}}}],"listeners":{}}' % title,
                           uiStateJSON="{}",
                           description="",
                           savedSearchId=saved_search_id,
@@ -38,7 +38,7 @@ def create_sentiment_chart(es, saved_search_id, title):
                       doc_type="visualization",
                       body=dict(
                           title=title,
-                          visState='{"title":"%s","type":"pie","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"isDonut":false},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"segment","params":{"field":"sentiment","size":5,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title,
+                          visState='{"title":"%s - sentiment","type":"pie","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"isDonut":false},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"segment","params":{"field":"sentiment","size":5,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title,
                           uiStateJSON='{"vis":{"colors":{"neutral":"#999999","positive":"#00FF00","negative":"#FF0000"}}}',
                           description="",
                           savedSearchId=saved_search_id,
@@ -55,7 +55,7 @@ def create_top_sites_chart(es, saved_search_id, title):
                       doc_type="visualization",
                       body={
                           "title": title,
-                          "visState": '{"title":"%s","type":"table","params":{"perPage":15,"showPartialRows":false,"showMeticsAtAllLevels":true},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"bucket","params":{"field":"site","size":24,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title,
+                          "visState": '{"title":"%s - top sites","type":"table","params":{"perPage":15,"showPartialRows":false,"showMeticsAtAllLevels":true},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"bucket","params":{"field":"site","size":24,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title,
                           "uiStateJSON": "{}",
                           "savedSearchId": saved_search_id,
                           "kibanaSavedObjectMeta": {
@@ -70,7 +70,7 @@ def create_tagcloud_chart(es, saved_search_id, title):
                       doc_type="visualization",
                       body=dict(
                           title=title,
-                          visState='{"title":"%s","type":"tagcloud","params":{"textScale":"linear","orientations":1,"fromDegree":0,"toDegree":0,"font":"serif","fontStyle":"normal","fontWeight":"normal","timeInterval":500,"spiral":"archimedean","minFontSize":18,"maxFontSize":72},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"significant_terms","schema":"segment","params":{"field":"title","size":50}}],"listeners":{}}' % title,
+                          visState='{"title":"%s - trending topics","type":"tagcloud","params":{"textScale":"linear","orientations":1,"fromDegree":0,"toDegree":0,"font":"serif","fontStyle":"normal","fontWeight":"normal","timeInterval":500,"spiral":"archimedean","minFontSize":18,"maxFontSize":72},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"significant_terms","schema":"segment","params":{"field":"title","size":50}}],"listeners":{}}' % title,
                           uiStateJSON='{"spy":{"mode":{"name":null,"fill":false}}}',
                           description='',
                           savedSearchId=saved_search_id,
@@ -86,7 +86,7 @@ def create_languages_chart(es, saved_search_id, title):
                       doc_type="visualization",
                       body=dict(
                           title=title,
-                          visState='{"title":"%s","type":"pie","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"isDonut":false},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"segment","params":{"field":"language","size":5,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title,
+                          visState='{"title":"%s - languages","type":"pie","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"isDonut":false},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"segment","params":{"field":"language","size":5,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title,
                           uiStateJSON='{}',
                           description="",
                           savedSearchId=saved_search_id,

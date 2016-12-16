@@ -61,7 +61,6 @@ def schedule_report(es, title, email, dashboard_id):
                       ],
                       "useDashboardTime": True,
                       "emailDetails": {
-                            "cc": "e.e.dehling@gmail.com",
                             "to": email,
                             "message": "Hi\nCheck out your report\nThanks",
                             "subject": title,
