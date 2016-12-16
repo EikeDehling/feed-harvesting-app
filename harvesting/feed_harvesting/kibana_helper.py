@@ -9,8 +9,16 @@ def create_saved_search(es, title, query):
                       doc_type="search",
                       body=dict(
                           title=title,
+                          columns = [
+                             "site",
+                             "title"
+                          ],
+                          sort = [
+                             "published",
+                             "desc"
+                          ],
                           kibanaSavedObjectMeta={
-                              "searchSourceJSON": '{"index": "%s", "query": "%s"}' % (INDEX_PATTERN, query)
+                              "searchSourceJSON": '{"index":"%s","query":{"match":{"_all":"%s"}},"filter":[],"highlight":{"pre_tags":["@kibana-highlighted-field@"],"post_tags":["@/kibana-highlighted-field@"],"fields":{"*":{}},"require_field_match":false,"fragment_size":2147483647}}' % (INDEX_PATTERN, query)
                           }
                       ))
     return result['_id']
@@ -49,6 +57,21 @@ def create_sentiment_chart(es, saved_search_id, title):
                       ))
     return result['_id']
 
+def create_sentiment_timeline_chart(es, saved_search_id, title):
+    result = es.index(index='.kibana',
+                      doc_type="visualization",
+                      body=dict(
+                          title=title,
+                          visState='{"title":"%s - sentiment","type":"histogram","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"scale":"linear","mode":"stacked","times":[],"addTimeMarker":false,"defaultYExtents":false,"setYExtents":false,"yAxis":{}},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"date_histogram","schema":"segment","params":{"field":"published","interval":"auto","customInterval":"2h","min_doc_count":1,"extended_bounds":{}}},{"id":"3","type":"terms","schema":"group","params":{"field":"sentiment","size":5,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title,
+                          uiStateJSON='{"vis":{"colors":{"neutral":"#999999","positive":"#00FF00","negative":"#FF0000"}}}',
+                          description="",
+                          savedSearchId=saved_search_id,
+                          version=1,
+                          kibanaSavedObjectMeta=dict(
+                              searchSourceJSON='{"filter":[]}'
+                          )
+                      ))
+    return result['_id']
 
 def create_top_sites_chart(es, saved_search_id, title):
     result = es.index(index='.kibana',
@@ -70,7 +93,7 @@ def create_tagcloud_chart(es, saved_search_id, title):
                       doc_type="visualization",
                       body=dict(
                           title=title,
-                          visState='{"title":"%s - trending topics","type":"tagcloud","params":{"textScale":"linear","orientations":1,"fromDegree":0,"toDegree":0,"font":"serif","fontStyle":"normal","fontWeight":"normal","timeInterval":500,"spiral":"archimedean","minFontSize":18,"maxFontSize":72},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"significant_terms","schema":"segment","params":{"field":"title","size":50}}],"listeners":{}}' % title,
+                          visState='{"title":"%s - trending topics","type":"tagcloud","params":{"textScale":"linear","orientations":1,"fromDegree":0,"toDegree":0,"font":"serif","fontStyle":"normal","fontWeight":"normal","timeInterval":500,"spiral":"archimedean","minFontSize":18,"maxFontSize":72},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"significant_terms","schema":"segment","params":{"field":"description","size":50}}],"listeners":{}}' % title,
                           uiStateJSON='{"spy":{"mode":{"name":null,"fill":false}}}',
                           description='',
                           savedSearchId=saved_search_id,
@@ -98,8 +121,8 @@ def create_languages_chart(es, saved_search_id, title):
     return result['_id']
 
 
-def create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id, tagcloud_chart_id,
-                     languages_chart_id, title):
+def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline_chart_id, sites_chart_id,
+                     tagcloud_chart_id, languages_chart_id, saved_search_id, title):
     panels_json = [
         {
             "id": volume_chart_id,
@@ -120,7 +143,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id, ta
             "row": 5
         },
         {
-            "id": sites_chart_id,
+            "id": sentiment_timeline_chart_id,
             "type": "visualization",
             "panelIndex": 3,
             "size_x": 5,
@@ -129,7 +152,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id, ta
             "row": 5
         },
         {
-            "id": languages_chart_id,
+            "id": tagcloud_chart_id,
             "type": "visualization",
             "panelIndex": 4,
             "size_x": 5,
@@ -138,13 +161,31 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sites_chart_id, ta
             "row": 9
         },
         {
-            "id": tagcloud_chart_id,
+            "id": sites_chart_id,
             "type": "visualization",
             "panelIndex": 5,
             "size_x": 5,
             "size_y": 4,
             "col": 6,
             "row": 9
+        },
+        {
+            "id": languages_chart_id,
+            "type": "visualization",
+            "panelIndex": 6,
+            "size_x": 5,
+            "size_y": 4,
+            "col": 1,
+            "row": 13
+        },
+        {
+            "id": saved_search_id,
+            "type": "search",
+            "panelIndex": 7,
+            "size_x": 5,
+            "size_y": 4,
+            "col": 6,
+            "row": 13
         }
     ]
 

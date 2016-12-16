@@ -2,7 +2,7 @@ Hi {{ name }}!
 
 Thanks for signing up to reportly. Your personal reportly will arrive via email soon!
 
-If your have any questions contact us at e.e.dehling@gmail.com
+If your have any questions contact us at reportly@mediamatters.com
 
 Best regards,
 Team Reportly
