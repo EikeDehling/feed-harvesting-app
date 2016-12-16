@@ -2,17 +2,22 @@ import time
 
 
 def schedule_report(es, title, email, dashboard_id):
-    # Schedule the report to me emailed at now + 5 minutes
-    ts = time.localtime(time.time() + 60*5)
+    # Schedule the report to me emailed at now + 10 minutes
+    ts = time.localtime(time.time() + 60*10 + 3600)
 
     min = ts[4]
     hour = ts[3]
     day_of_week = ts[6]
 
-    cron_line = '{min} {hour} * * {day_of_week}'\
-        .format(min=min, hour=hour, day_of_week=day_of_week)
+    if min%10 < 2:
+        min += 2
+    if min%10 >= 8:
+        min -= 2
 
     weekdays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+
+    cron_line = '0 {min} {hour}  * * {day_of_week}'\
+        .format(min=min, hour=hour, day_of_week=weekdays[day_of_week])
 
     result = es.index(index='.skedler',
                   doc_type="jobs",
