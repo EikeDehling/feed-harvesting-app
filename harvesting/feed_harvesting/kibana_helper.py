@@ -115,7 +115,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline
             "panelIndex": 3,
             "size_x": 6,
             "size_y": 4,
-            "col": 6,
+            "col": 7,
             "row": 5
         },
         {
@@ -133,7 +133,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline
             "panelIndex": 5,
             "size_x": 6,
             "size_y": 4,
-            "col": 6,
+            "col": 7,
             "row": 9
         },
         {
@@ -151,7 +151,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline
             "panelIndex": 7,
             "size_x": 6,
             "size_y": 4,
-            "col": 6,
+            "col": 7,
             "row": 13
         }
         ,
