@@ -95,7 +95,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline
             "id": volume_chart_id,
             "type": "visualization",
             "panelIndex": 1,
-            "size_x": 10,
+            "size_x": 12,
             "size_y": 4,
             "col": 1,
             "row": 1
@@ -104,7 +104,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline
             "id": sentiment_chart_id,
             "type": "visualization",
             "panelIndex": 2,
-            "size_x": 5,
+            "size_x": 6,
             "size_y": 4,
             "col": 1,
             "row": 5
@@ -113,7 +113,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline
             "id": sentiment_timeline_chart_id,
             "type": "visualization",
             "panelIndex": 3,
-            "size_x": 5,
+            "size_x": 6,
             "size_y": 4,
             "col": 6,
             "row": 5
@@ -122,7 +122,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline
             "id": tagcloud_chart_id,
             "type": "visualization",
             "panelIndex": 4,
-            "size_x": 5,
+            "size_x": 6,
             "size_y": 4,
             "col": 1,
             "row": 9
@@ -131,7 +131,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline
             "id": sites_chart_id,
             "type": "visualization",
             "panelIndex": 5,
-            "size_x": 5,
+            "size_x": 6,
             "size_y": 4,
             "col": 6,
             "row": 9
@@ -140,7 +140,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline
             "id": languages_chart_id,
             "type": "visualization",
             "panelIndex": 6,
-            "size_x": 5,
+            "size_x": 6,
             "size_y": 4,
             "col": 1,
             "row": 13
@@ -149,7 +149,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline
             "id": saved_search_id,
             "type": "search",
             "panelIndex": 7,
-            "size_x": 5,
+            "size_x": 6,
             "size_y": 4,
             "col": 6,
             "row": 13
@@ -159,7 +159,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline
             "id": countries_chart_id,
             "type": "visualization",
             "panelIndex": 8,
-            "size_x": 5,
+            "size_x": 6,
             "size_y": 4,
             "col": 1,
             "row": 17
