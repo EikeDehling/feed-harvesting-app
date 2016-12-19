@@ -30,7 +30,7 @@ def schedule_report(es, title, email, dashboard_id):
                           "reportLogoPath": "logo/logo.png",
                           "reportLogo": "defaultLogo",
                           "smartLayout": False,
-                          "layoutType": "A4",
+                          "layoutType": "Default Size",
                           "reportTitle": title,
                           "orientation": "portrait"
                       },
