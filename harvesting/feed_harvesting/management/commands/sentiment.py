@@ -25,8 +25,8 @@ class Command(BaseCommand):
            "query": {
                "and": [
                    { "missing": { "field": "sentiment" } },
-                   { "terms": { "language": ['en', 'de', 'fr', 'it', 'es', 'pt'] } },
-                   { "range": { "published": { "gte" : "now-1d" } } }
+                   { "terms": { "language": ['en', 'de', 'fr', 'it', 'es', 'pt', 'nl'] } },
+                   { "range": { "published": { "gte": "now-1d" } } }
                ]
            },
            "size": 100

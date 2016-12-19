@@ -32,7 +32,7 @@ def schedule_report(es, title, email, dashboard_id):
                           "smartLayout": False,
                           "layoutType": "Default Size",
                           "reportTitle": title,
-                          "orientation": "portrait"
+                          "orientation": "landscape"
                       },
                       "shieldPlugin": {},
                       "timeWindow": {
