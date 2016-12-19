@@ -29,11 +29,12 @@ class SignupView(FormView):
         sites_chart_id = kibana_helper.create_top_sites_chart(es, saved_search_id, form.cleaned_data['title'])
         tagcloud_chart_id = kibana_helper.create_tagcloud_chart(es, saved_search_id, form.cleaned_data['title'])
         languages_chart_id = kibana_helper.create_languages_chart(es, saved_search_id, form.cleaned_data['title'])
+        countries_chart_id = kibana_helper.create_countries_chart(es, saved_search_id, form.cleaned_data['title'])
 
         dashboard_id = kibana_helper.create_dashboard(es, volume_chart_id, sentiment_chart_id,
                                                       sentiment_timeline_chart_id, sites_chart_id,
-                                                      tagcloud_chart_id, languages_chart_id, saved_search_id,
-                                                      form.cleaned_data['title'])
+                                                      tagcloud_chart_id, languages_chart_id, countries_chart_id,
+                                                      saved_search_id, form.cleaned_data['title'])
 
         skedler_helper.schedule_report(es, form.cleaned_data['title'], form.cleaned_data['email'], dashboard_id)
 
