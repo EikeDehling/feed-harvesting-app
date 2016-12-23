@@ -52,47 +52,47 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
         self.chart.data = data
 
 
-class MyPieChart(_DrawingEditorMixin,Drawing):
-    def __init__(self, data=None):
-        Drawing.__init__(self, width=150, height=175)
+class MyPieChart(): #_DrawingEditorMixin ,Drawing):
+    def __init__(self, drawing=None, data=None):
+        #Drawing.__init__(self, width=100, height=175)
 
-        #pie
-        self._add(self,Pie(),name='pie')
-        self.pie.strokeColor = white
-        self.pie.slices.strokeColor = white
-        self.pie.width            = 125
-        self.pie.height           = 125
-        self.pie.y                = 25
-        self.pie.x                = 25
+        pie = Pie()
+        pie.strokeColor = white
+        pie.slices.strokeColor = white
+        pie.width            = 150
+        pie.height           = 150
+        pie.y                = 50
+        pie.x                = 25
 
-        #legend
-        self._add(self,Legend(),name='legend')
-        self.legend.columnMaximum    = 99
-        self.legend.alignment        = 'right'
-        self.legend.boxAnchor        = 'c'
-        self.legend.dx               = 6
-        self.legend.dy               = 6
-        self.legend.dxTextSpace      = 5
-        self.legend.deltay           = 10
-        self.legend.strokeWidth      = 0
-        self.legend.subCols[0].minWidth = 75
-        self.legend.subCols[0].align = 'left'
-        self.legend.subCols[1].minWidth = 25
-        self.legend.subCols[1].align = 'right'
-        self.legend.y              = 0
-        self.legend.x              = 90
+        legend = Legend()
+        legend.columnMaximum    = 99
+        legend.alignment        = 'right'
+        legend.boxAnchor        = 'c'
+        legend.dx               = 6
+        legend.dy               = 6
+        legend.dxTextSpace      = 5
+        legend.deltay           = 10
+        legend.strokeWidth      = 0
+        legend.subCols[0].minWidth = 75
+        legend.subCols[0].align = 'left'
+        legend.subCols[1].minWidth = 25
+        legend.subCols[1].align = 'right'
+        legend.y              = 0
+        legend.x              = 90
 
-        self.pie.data = data
-
-        self.pie.slices[0].fillColor = lightgrey
-        self.pie.slices[1].fillColor = limegreen
-        self.pie.slices[2].fillColor = red
+        pie.data = data
+        pie.slices[0].fillColor = lightgrey
+        pie.slices[1].fillColor = limegreen
+        pie.slices[2].fillColor = red
 
         total = sum(data)
         neutral_pct = (data[0] / total) * 100.0
         positive_pct = (data[1] / total) * 100.0
         negative_pct = (data[2] / total) * 100.0
 
-        self.legend.colorNamePairs = [(limegreen, ('Positive', '%.1f%%' % positive_pct)),
-                                      (lightgrey, ('Neutral', '%.1f%%' % neutral_pct)),
-                                      (red, ('Negative', '%.1f%%' % negative_pct))]
+        legend.colorNamePairs = [(limegreen, ('Positive', '%.1f%%' % positive_pct)),
+                                 (lightgrey, ('Neutral', '%.1f%%' % neutral_pct)),
+                                 (red, ('Negative', '%.1f%%' % negative_pct))]
+
+        drawing.add(pie)
+        drawing.add(legend)

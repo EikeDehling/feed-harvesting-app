@@ -38,7 +38,13 @@ def generate_report_data(es, keywords):
             'wordcloud': {
                 'significant_terms': {
                     'field': 'description',
-                    'size': 25
+                    'size': 20
+                }
+            },
+            'top_sites': {
+                'terms': {
+                    'field': 'site',
+                    'size': 8
                 }
             }
         }
@@ -58,4 +64,7 @@ def generate_report_data(es, keywords):
     cloud_data = [(bucket['key'], int(bucket['doc_count']))
                   for bucket in data['aggregations']['wordcloud']['buckets']]
 
-    return (data['hits']['total'], volume_chart_data, sentiment_data, cloud_data)
+    sites_data = [(bucket['key'], int(bucket['doc_count']))
+                  for bucket in data['aggregations']['top_sites']['buckets']]
+
+    return (data['hits']['total'], volume_chart_data, sentiment_data, cloud_data, sites_data)
