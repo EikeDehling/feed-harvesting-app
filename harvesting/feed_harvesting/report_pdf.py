@@ -1,27 +1,33 @@
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.colors import black
+from reportlab.lib.colors import black, white
 from report_charts import MyVolumeChart, MyPieChart
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, TableStyle
 from reportlab.platypus.tables import Table
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.graphics.shapes import Drawing, Image
-from wordcloud import WordCloud
+from reportlab.graphics.shapes import Drawing, Image, Rect, String
+from wordcloud import WordCloud, get_single_color_func
 from tempfile import NamedTemporaryFile
 
 
 def generate_report(title, total_hits, volume_chart_data, sentiment_data, cloud_data, sites_data):
     tmp_file = NamedTemporaryFile(suffix='.pdf', delete=False)
+    #tmp_file = 'report.pdf'
     wordcloud_file = NamedTemporaryFile(suffix='.png', delete=True)
 
-    print 'Writing report to temp file: %s' % tmp_file.name
+    #print 'Writing report to temp file: %s' % tmp_file.name
 
-    cloud = WordCloud(width=225, height=200, background_color='white')
+    cloud = WordCloud(width=257, height=190, background_color='white', max_font_size=16, margin=0,
+                      color_func=get_single_color_func('blue'), prefer_horizontal=1.0)
     cloud.generate_from_frequencies(cloud_data)
     cloud.to_file(wordcloud_file)
 
-    sentiment_and_cloud = Drawing(width=458, height=200)
+    sentiment_and_cloud = Drawing(width=458, height=220)
+    sentiment_and_cloud.add(Rect(x=0,y=0,width=170,height=220,fillColor=white, strokeWidth=0.25))
+    sentiment_and_cloud.add(String(x=85,y=205,text='Sentiment',textAnchor='middle', fontSize=14))
+    sentiment_and_cloud.add(Rect(x=200,y=0,width=259,height=220,fillColor=white, strokeWidth=0.25))
+    sentiment_and_cloud.add(String(x=328,y=205,text='Trending Words',textAnchor='middle', fontSize=14))
     MyPieChart(drawing=sentiment_and_cloud, data=sentiment_data)
-    sentiment_and_cloud.add(Image(x=225, y=-10, width=225, height=200, path=wordcloud_file.name))
+    sentiment_and_cloud.add(Image(x=202, y=1, width=257, height=190, path=wordcloud_file.name))
 
     styles = getSampleStyleSheet()
 
@@ -30,13 +36,13 @@ def generate_report(title, total_hits, volume_chart_data, sentiment_data, cloud_
 
     elements = [
         Paragraph('<font size=24>Reportly Media Analysis - %s</font>' % title, styles['Normal']),
-        Spacer(width=1, height=20),
+        Spacer(width=1, height=25),
         Paragraph('Found %d total hits' % total_hits, styles['Normal']),
-        Spacer(width=1, height=15),
+        Spacer(width=1, height=10),
         MyVolumeChart(data=volume_chart_data),
         Spacer(width=1, height=20),
         sentiment_and_cloud,
-        Spacer(width=1, height=40),
+        Spacer(width=1, height=20),
         Table(data=[('Site', '# Articles')] + sites_data, style=tbl_style),
     ]
 
@@ -49,4 +55,4 @@ def generate_report(title, total_hits, volume_chart_data, sentiment_data, cloud_
 
 #from report_data import generate_report_data
 #from elasticsearch import Elasticsearch
-#generate_report('Merkel', *generate_report_data(Elasticsearch(), 'angela merkel'))
+#generate_report('Merkel', *generate_report_data(Elasticsearch(), 'merkel'))

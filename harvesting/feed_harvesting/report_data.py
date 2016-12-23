@@ -38,7 +38,7 @@ def generate_report_data(es, keywords):
             'wordcloud': {
                 'significant_terms': {
                     'field': 'description',
-                    'size': 20
+                    'size': 15
                 }
             },
             'top_sites': {
@@ -61,7 +61,7 @@ def generate_report_data(es, keywords):
                       float(sentiments.get('positive', 0)),
                       float(sentiments.get('negative', 0)))
 
-    cloud_data = [(bucket['key'], int(bucket['doc_count']))
+    cloud_data = [(bucket['key'], int((float(bucket['doc_count']) / float(bucket['bg_count'])) * 100.0))
                   for bucket in data['aggregations']['wordcloud']['buckets']]
 
     sites_data = [(bucket['key'], int(bucket['doc_count']))
