@@ -48,7 +48,7 @@ class SignupView(FormView):
         #    fail_silently=False
         #)
 
-        report = generate_report(*generate_report_data(es))
+        report = generate_report(*generate_report_data(es, form.cleaned_data['query']))
 
         email = EmailMessage(
             subject='Welcome to reportly',

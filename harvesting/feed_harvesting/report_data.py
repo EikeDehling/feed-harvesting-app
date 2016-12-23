@@ -1,20 +1,21 @@
-def generate_report_data(es):
-    data = es.search(index='rss', doc_type='posting', body={
+INDEX_PATTERN = 'rss-*'
+
+def generate_report_data(es, keywords):
+    data = es.search(index=INDEX_PATTERN, doc_type='posting', body={
         'query': {
             'bool': {
                 'must': [
                     {
                         'range': {
                             'published': {
-                                'gte': '1/11/2016',
-                                'lte': '30/11/2016',
-                                'format': 'dd/MM/yyyy'
+                                'gte': 'now-14d/d',
+                                'lte': 'now/d'
                             }
                         }
                     },
                     {
                         'match': {
-                            '_all': 'trump'
+                            '_all': keywords
                         }
                     }
                 ]
@@ -50,7 +51,9 @@ def generate_report_data(es):
     for bucket in data['aggregations']['sentiment']['buckets']:
         sentiments[bucket['key']] = bucket['doc_count']
 
-    sentiment_data = (float(sentiments['neutral']), float(sentiments['positive']), float(sentiments['negative']))
+    sentiment_data = (float(sentiments.get('neutral', 0)),
+                      float(sentiments.get('positive', 0)),
+                      float(sentiments.get('negative', 0)))
 
     cloud_data = [(bucket['key'], int(bucket['doc_count']))
                   for bucket in data['aggregations']['wordcloud']['buckets']]
