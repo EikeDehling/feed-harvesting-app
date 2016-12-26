@@ -9,18 +9,18 @@ from reportlab.graphics.charts.axes import YValueAxis, NormalDateXValueAxis
 
 
 class MyVolumeChart(_DrawingEditorMixin,Drawing):
-    def __init__(self, data=None):
-        Drawing.__init__(self, width=458, height=200)
+    def __init__(self, data=None, name=None):
+        Drawing.__init__(self, width=458, height=180)
 
-        self._add(self, Rect(x=0,y=0,width=458,height=200,fillColor=white, strokeWidth=0.25), name='border')
-        self._add(self, String(x=229,y=185,text='Media Volume',textAnchor='middle', fontSize=14), name='title')
+        self._add(self, Rect(x=0,y=0,width=458,height=180,fillColor=white, strokeWidth=0.25), name='border')
+        self._add(self, String(x=229,y=165,text='Media Volume',textAnchor='middle', fontSize=14), name='title')
 
         # chart
         self._add(self, LinePlot(), name='chart')
         self.chart.y                = 20
         self.chart.x                = 32
-        self.chart.width            = 408
-        self.chart.height           = 140
+        self.chart.width            = 353
+        self.chart.height           = 120
 
         # line styles
         self.chart.lines.symbol = makeMarker('Circle', size=2)
@@ -45,11 +45,11 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
         self.chart.yValueAxis.avoidBoundFrac        = 0.1
 
         # legend
-        #self._add(self, LineLegend(), name='legend')
-        #self.legend.alignment      ='right'
-        #self.legend.y              = 185
-        #self.legend.x              = 170
-        #self.legend.colorNamePairs = [(blue, 'Media volume')]
+        self._add(self, LineLegend(), name='legend')
+        self.legend.alignment      ='right'
+        self.legend.y              = 90
+        self.legend.x              = 390
+        self.legend.colorNamePairs = [(blue, name)]
 
         # Data...
         self.chart.data = data
