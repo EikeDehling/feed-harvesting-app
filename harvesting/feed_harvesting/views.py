@@ -30,7 +30,7 @@ class SignupView(FormView):
             body=render_to_string('success_mail.txt', context={'name':form.cleaned_data['name']}),
             from_email='Reportly <daan@mediamatters.asia>',
             to=[form.cleaned_data['email']],
-            attachments=[(report.name, report.read(), 'application/pdf')]
+            attachments=[('reportly.pdf', report.read(), 'application/pdf')]
         )
 
         email.send()
