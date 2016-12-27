@@ -1,4 +1,9 @@
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+
+
 INDEX_PATTERN = 'rss-*'
+
 
 def generate_report_data(es, keywords):
     data = es.search(index=INDEX_PATTERN, doc_type='posting', body={
@@ -21,7 +26,7 @@ def generate_report_data(es, keywords):
                 ]
             }
         },
-        'size': 0,
+        'size': 10,
         'aggs': {
             'timeline': {
                 'date_histogram': {
@@ -46,6 +51,18 @@ def generate_report_data(es, keywords):
                     'field': 'site',
                     'size': 8
                 }
+            },
+            'languages': {
+                'terms': {
+                    'field': 'language',
+                    'size': 4
+                }
+            },
+            'publications': {
+                'terms': {
+                    'field': 'publication_name',
+                    'size': 7
+                }
             }
         }
     })
@@ -67,4 +84,27 @@ def generate_report_data(es, keywords):
     sites_data = [(bucket['key'], int(bucket['doc_count']))
                   for bucket in data['aggregations']['top_sites']['buckets']]
 
-    return (data['hits']['total'], volume_chart_data, sentiment_data, cloud_data, sites_data)
+    langs = dict(
+        en='English',
+        de='German',
+        fr='French',
+        nl='Dutch',
+        it='Italian',
+        se='Spanish'
+    )
+
+    languages_data = [(langs.get(bucket['key'], bucket['key']), int(bucket['doc_count']))
+                      for bucket in data['aggregations']['languages']['buckets']]
+
+    publication_data = [(bucket['key'], int(bucket['doc_count']))
+                        for bucket in data['aggregations']['publications']['buckets']]
+
+    styles = getSampleStyleSheet()
+
+    articles = [
+        (art['_source']['published'].split('T')[0], art['_source']['publication_name'],
+         Paragraph(art['_source']['title'], styles['Normal'])) for art in data['hits']['hits']
+    ]
+
+    return (data['hits']['total'], volume_chart_data, sentiment_data, cloud_data, sites_data,
+            languages_data, publication_data, articles)

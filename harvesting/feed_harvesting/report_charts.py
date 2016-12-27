@@ -1,6 +1,7 @@
-from reportlab.lib.colors import blue, red, lightgrey, white, limegreen
+from reportlab.lib.colors import blue, red, lightgrey, white, limegreen, mediumblue
 from reportlab.graphics.charts.lineplots import LinePlot
 from reportlab.graphics.charts.piecharts import Pie
+from reportlab.graphics.charts.barcharts import HorizontalBarChart
 
 from reportlab.graphics.charts.legends import LineLegend, Legend
 from reportlab.graphics.shapes import Drawing, _DrawingEditorMixin, Rect, String
@@ -63,27 +64,27 @@ class MyPieChart(): #_DrawingEditorMixin ,Drawing):
         pie.strokeColor = white
         pie.slices.strokeColor = white
         pie.slices.popout = 1
-        pie.width            = 140
-        pie.height           = 140
-        pie.y                = 45
-        pie.x                = 15
+        pie.width            = 130
+        pie.height           = 130
+        pie.y                = 50
+        pie.x                = 45
 
         legend = Legend()
-        legend.columnMaximum    = 99
-        legend.alignment        = 'right'
-        legend.boxAnchor        = 'c'
-        legend.dx               = 6
-        legend.dy               = 6
-        legend.dxTextSpace      = 5
-        legend.deltay           = 10
-        legend.strokeWidth      = 0
-        legend.strokeColor      = white
+        legend.columnMaximum       = 99
+        legend.alignment           = 'right'
+        legend.boxAnchor           = 'c'
+        legend.dx                  = 6
+        legend.dy                  = 6
+        legend.dxTextSpace         = 5
+        legend.deltay              = 10
+        legend.strokeWidth         = 0
+        legend.strokeColor         = white
         legend.subCols[0].minWidth = 75
-        legend.subCols[0].align = 'left'
+        legend.subCols[0].align    = 'left'
         legend.subCols[1].minWidth = 25
-        legend.subCols[1].align = 'right'
-        legend.y              = 20
-        legend.x              = 80
+        legend.subCols[1].align    = 'right'
+        legend.y                   = 20
+        legend.x                   = 110
 
         pie.data = data
         pie.slices[0].fillColor = lightgrey
@@ -103,3 +104,20 @@ class MyPieChart(): #_DrawingEditorMixin ,Drawing):
 
         drawing.add(pie)
         drawing.add(legend)
+
+
+class MyHBarChart(): #_DrawingEditorMixin,Drawing):
+    def __init__(self, drawing=None, data=None, x=45, y=25, width=170, height=150):
+
+        bars = HorizontalBarChart()
+        bars.x                   = x
+        bars.y                   = y
+        bars.data                = [[ value for (_, value) in data ]]
+        bars.width               = width
+        bars.height              = height
+        bars.valueAxis.forceZero = 1
+        bars.bars[0].fillColor   = mediumblue
+
+        bars.categoryAxis.categoryNames = [ key for (key, _) in data ]
+
+        drawing.add(bars)
