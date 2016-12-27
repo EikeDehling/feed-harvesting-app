@@ -14,7 +14,7 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
         Drawing.__init__(self, width=458, height=180)
 
         self._add(self, Rect(x=0,y=0,width=458,height=180,fillColor=white, strokeWidth=0.25), name='border')
-        self._add(self, String(x=229,y=165,text='Media Volume',textAnchor='middle', fontSize=14), name='title')
+        self._add(self, String(x=229,y=165,text='Volume',textAnchor='middle', fontSize=13, fontName='Helvetica-Bold'), name='title')
 
         # chart
         self._add(self, LinePlot(), name='chart')
@@ -117,7 +117,8 @@ class MyHBarChart(): #_DrawingEditorMixin,Drawing):
         bars.height              = height
         bars.valueAxis.forceZero = 1
         bars.bars[0].fillColor   = mediumblue
-
         bars.categoryAxis.categoryNames = [ key for (key, _) in data ]
+        bars.categoryAxis.tickRight = 0
+        bars.categoryAxis.tickLeft = 0
 
         drawing.add(bars)

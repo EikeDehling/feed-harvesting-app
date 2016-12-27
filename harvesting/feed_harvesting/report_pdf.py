@@ -26,13 +26,13 @@ def generate_report(title, total_hits, volume_chart_data, sentiment_data, cloud_
 
     sentiment_and_cloud = Drawing(width=458, height=220)
     sentiment_and_cloud.add(Rect(x=0,y=0,width=224,height=220,fillColor=white, strokeWidth=0.25))
-    sentiment_and_cloud.add(String(x=110,y=205,text='Sentiment',textAnchor='middle', fontSize=14))
+    sentiment_and_cloud.add(String(x=110,y=205,text='Sentiment',textAnchor='middle', fontSize=13, fontName='Helvetica-Bold'))
     sentiment_and_cloud.add(Rect(x=234,y=0,width=224,height=220,fillColor=white, strokeWidth=0.25))
-    sentiment_and_cloud.add(String(x=344,y=205,text='Trending Words',textAnchor='middle', fontSize=14))
+    sentiment_and_cloud.add(String(x=344,y=205,text='Trending Words',textAnchor='middle', fontSize=13, fontName='Helvetica-Bold'))
     MyPieChart(drawing=sentiment_and_cloud, data=sentiment_data)
     sentiment_and_cloud.add(Image(x=240, y=8, width=210, height=185, path=wordcloud_file.name))
 
-    #styles = getSampleStyleSheet()
+    styles = getSampleStyleSheet()
 
     tbl_style = TableStyle([('INNERGRID', (0,0), (-1,-1), 0.25, black),
                             ('BOX', (0,0), (-1,-1), 0.25, black),
@@ -41,21 +41,21 @@ def generate_report(title, total_hits, volume_chart_data, sentiment_data, cloud_
 
     languages = Drawing(width=458, height=200)
     languages.add(Rect(x=0,y=0,width=224,height=200,fillColor=white, strokeWidth=0.25))
-    languages.add(String(x=110,y=185,text='Languages',textAnchor='middle', fontSize=14))
+    languages.add(String(x=110,y=185,text='Languages',textAnchor='middle', fontSize=13, fontName='Helvetica-Bold'))
     MyHBarChart(drawing=languages, data=languages_data)
     languages.add(Rect(x=234,y=0,width=224,height=200,fillColor=white, strokeWidth=0.25))
-    languages.add(String(x=344,y=185,text='Publications',textAnchor='middle', fontSize=14))
+    languages.add(String(x=344,y=185,text='Publications',textAnchor='middle', fontSize=13, fontName='Helvetica-Bold'))
     MyHBarChart(drawing=languages, data=publication_data, x=325, width=123)
 
     elements = [
-        #Paragraph('<font size=18>Media Scan: %s ; %d articles</font>' % (title, total_hits), styles['Normal']),
-        #Spacer(width=1, height=25),
+        Paragraph('<font size=18 name="Helvetica-Bold">Media Scan: %s</font>' % title, styles['Normal']),
+        Spacer(width=1, height=25),
         MyVolumeChart(data=volume_chart_data, name='%s\n(%d hits)' % (title, total_hits)),
-        Spacer(width=1, height=20),
+        Spacer(width=1, height=10),
         sentiment_and_cloud,
-        Spacer(width=1, height=20),
+        Spacer(width=1, height=10),
         languages,
-        Spacer(width=1, height=30),
+        Spacer(width=1, height=15),
         #Table(data=[('Site', '# Articles')] + sites_data, style=tbl_style),
         Table(data=[('Date', 'Publication', 'Title')] + articles, style=tbl_style, colWidths=(2.5*cm, 4*cm, 10*cm)),
     ]
@@ -64,8 +64,9 @@ def generate_report(title, total_hits, volume_chart_data, sentiment_data, cloud_
         canvas.saveState()
         canvas.drawImage('feed_harvesting/static/reportly.png', 20, A4[1]-35, width=85, height=21, mask='auto')
         #canvas.drawImage('static/reportly.png', 20, A4[1]-35, width=85, height=21, mask='auto')
-        canvas.setFontSize(16)
-        canvas.drawRightString(A4[0]-20, A4[1]-25, "Media Scan")
+        canvas.setFont('Helvetica', 10)
+        canvas.drawRightString(A4[0]-20, A4[1]-25, "www.reportly.nl")
+        canvas.drawRightString(A4[0]-20, A4[1]-35, "info@reportly.nl")
         canvas.restoreState()
 
     doc = SimpleDocTemplate(tmp_file, pagesize=A4)
