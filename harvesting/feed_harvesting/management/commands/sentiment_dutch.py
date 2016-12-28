@@ -5,9 +5,8 @@ logger = logging.getLogger(__name__)
 
 from django.core.management.base import BaseCommand
 
-from alchemyapi import AlchemyAPI
-
 import elasticsearch
+import requests
 
 import os
 es_url = os.environ.get('ES_URL', 'http://localhost:9200')
@@ -19,34 +18,40 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         es = elasticsearch.Elasticsearch(es_url)
 
-        alchemyapi = AlchemyAPI()
-
         query = {
            "query": {
                "and": [
                    { "missing": { "field": "sentiment" } },
-                   { "terms": { "language": ['en', 'de', 'fr', 'it', 'es', 'pt'] } },
+                   { "terms": { "language": ["nl"] } },
                    { "range": { "published": { "gte": "now-1d" } } }
                ]
            },
            "size": 100
         }
 
-        res = es.search(index="rss-*", doc_type="posting", body=query)
+        res = es.search(index="rss-*", doc_type="posting", body=query, timeout='60s')
         logger.info("%d documents found" % res['hits']['total'])
 
         for p in res['hits']['hits']:
             logger.info('Checking sentiment for - %s' % p['_id'])
             
             analyzed_text = p['_source']['title'] + ' ' + p['_source']['description']
+            analyzed_text = analyzed_text.encode('utf-8')
 
             try:
-                response = alchemyapi.sentiment("text", analyzed_text)
-                logger.info("Sentiment: " + response["docSentiment"]["type"])
-                sentiment = response["docSentiment"]["type"]
+                headers = {
+                    'X-Mashape-Key': '',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json'
+                }
+
+                response = requests.post('https://japerk-text-processing.p.mashape.com/sentiment/',
+                                        headers=headers, data='text=%s' % analyzed_text)
+
+                data = response.json()
+                sentiment = data["label"]
 
                 es.update(index=p['_index'], doc_type=p['_type'], id=p['_id'],
                           body={"doc": {"sentiment": sentiment}})
-            except KeyError:
-                logger.exception("Problem getting sentiment :( %s" % response)
-
+            except Exception, e:
+                logger.exception("Problem getting sentiment :(")
