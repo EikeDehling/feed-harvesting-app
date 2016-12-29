@@ -8,6 +8,7 @@ import os
 from . import forms
 from .report_pdf import generate_report
 from .report_data import generate_report_data
+from .models import Report
 
 
 es = elasticsearch.Elasticsearch(os.environ.get('ES_URL', 'http://localhost:9200'))
@@ -21,6 +22,8 @@ class SignupView(FormView):
 
     def form_valid(self, form):
         # Form filled in correct ; create the report and redirect to success page
+
+        Report.objects.create(**form.cleaned_data)
 
         report = generate_report(form.cleaned_data['title'],
                                  *generate_report_data(es, form.cleaned_data['query']))
