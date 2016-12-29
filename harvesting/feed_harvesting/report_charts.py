@@ -1,4 +1,4 @@
-from reportlab.lib.colors import blue, red, lightgrey, white, limegreen, mediumblue
+from reportlab.lib.colors import blue, red, lightgrey, white, limegreen, mediumblue, orange
 from reportlab.graphics.charts.lineplots import LinePlot
 from reportlab.graphics.charts.piecharts import Pie
 from reportlab.graphics.charts.barcharts import HorizontalBarChart
@@ -10,8 +10,10 @@ from reportlab.graphics.charts.axes import YValueAxis, NormalDateXValueAxis
 
 
 class MyVolumeChart(_DrawingEditorMixin,Drawing):
-    def __init__(self, data=None, name=None):
+    def __init__(self, data=None, legend_data=None):
         Drawing.__init__(self, width=458, height=180)
+
+        line_colors = [blue, red, limegreen, orange]
 
         self._add(self, Rect(x=0,y=0,width=458,height=180,fillColor=white, strokeWidth=0.25), name='border')
         self._add(self, String(x=229,y=165,text='Volume',textAnchor='middle', fontSize=13, fontName='Helvetica-Bold'), name='title')
@@ -26,6 +28,9 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
         # line styles
         self.chart.lines.symbol = makeMarker('Circle', size=2)
         self.chart.lines[0].strokeColor = blue
+
+        for (i, _) in enumerate(legend_data):
+            self.chart.lines[i].strokeColor = line_colors[i]
 
         # x axis
         self.chart.xValueAxis = NormalDateXValueAxis()
@@ -47,10 +52,13 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
 
         # legend
         self._add(self, LineLegend(), name='legend')
-        self.legend.alignment      ='right'
-        self.legend.y              = 90
-        self.legend.x              = 390
-        self.legend.colorNamePairs = [(blue, name)]
+        self.legend.alignment     ='right'
+        self.legend.y             = 110
+        self.legend.x             = 390
+        self.legend.dxTextSpace   = 5
+        self.legend.columnMaximum = 4
+
+        self.legend.colorNamePairs = zip(line_colors, legend_data)
 
         # Data...
         self.chart.data = data

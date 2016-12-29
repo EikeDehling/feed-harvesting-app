@@ -16,7 +16,7 @@ def draw_wordcloud(drawing, cloud, x, y):
                            fontName='Helvetica-Bold',fillColor=toColor(color)))
 
 
-def generate_report(title, total_hits, volume_chart_data, sentiment_data, cloud_data, sites_data,
+def generate_report(report, volume_chart_data, volume_legend_data, sentiment_data, cloud_data, sites_data,
                     languages_data, publication_data, articles):
 
     tmp_file = NamedTemporaryFile(suffix='.pdf', delete=False)
@@ -57,9 +57,9 @@ def generate_report(title, total_hits, volume_chart_data, sentiment_data, cloud_
     MyHBarChart(drawing=languages, data=publication_data, x=325, width=123)
 
     elements = [
-        Paragraph('<font size=18 name="Helvetica-Bold">Media Scan: %s</font>' % title, styles['Normal']),
+        Paragraph('<font size=18 name="Helvetica-Bold">Media Scan: %s</font>' % report.title, styles['Normal']),
         Spacer(width=1, height=25),
-        MyVolumeChart(data=volume_chart_data, name='%s\n(%d hits)' % (title, total_hits)),
+        MyVolumeChart(data=volume_chart_data, legend_data=volume_legend_data),
         Spacer(width=1, height=10),
         sentiment_and_cloud,
         Spacer(width=1, height=10),

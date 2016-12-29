@@ -5,10 +5,10 @@ from django.core.mail import EmailMessage
 import elasticsearch
 import os
 
-from . import forms
+from .forms import CreateReportForm, CreateComparisonReportForm
 from .report_pdf import generate_report
 from .report_data import generate_report_data
-from .models import Report
+from .models import Report, ComparisonReport
 
 
 es = elasticsearch.Elasticsearch(os.environ.get('ES_URL', 'http://localhost:9200'))
@@ -18,15 +18,15 @@ class SignupView(FormView):
 
     template_name = "signup.html"
     success_url = "/success/"
-    form_class = forms.CreateReportForm
+    form_class = CreateReportForm
+    object_class = Report
 
     def form_valid(self, form):
         # Form filled in correct ; create the report and redirect to success page
 
-        Report.objects.create(**form.cleaned_data)
+        obj = self.object_class.objects.create(**form.cleaned_data)
 
-        report = generate_report(form.cleaned_data['title'],
-                                 *generate_report_data(es, form.cleaned_data['query']))
+        report = generate_report(obj, *generate_report_data(es, obj))
 
         email = EmailMessage(
             subject='Welcome to reportly',
@@ -39,6 +39,13 @@ class SignupView(FormView):
         email.send()
 
         return super(SignupView, self).form_valid(form)
+
+
+class SignupCompareView(SignupView):
+
+    template_name = "signup_compare.html"
+    form_class = CreateComparisonReportForm
+    object_class = ComparisonReport
 
 
 class SuccessView(TemplateView):

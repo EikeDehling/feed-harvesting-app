@@ -30,3 +30,9 @@ class Report(models.Model):
 
     def __unicode__(self):
         return '(%d) %s - "%s"' % (self.id, self.title, self.query)
+
+
+class ComparisonReport(Report):
+    compare_one = models.CharField(max_length=50, null=False, blank=False)
+    compare_two = models.CharField(max_length=50)
+    compare_three = models.CharField(max_length=50)
