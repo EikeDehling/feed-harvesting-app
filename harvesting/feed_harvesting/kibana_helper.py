@@ -84,12 +84,20 @@ def create_languages_chart(es, saved_search_id, title):
 
 def create_countries_chart(es, saved_search_id, title):
     title = '%s - countries' % title
-    visState = '{"title":"%s","type":"pie","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"isDonut":false},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"segment","params":{"field":"country","size":5,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title
+    #visState = '{"title":"%s","type":"pie","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"isDonut":false},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"segment","params":{"field":"country","size":5,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title
+    visState = '{"title":"%s","type":"histogram","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"scale":"linear","mode":"stacked","times":[],"addTimeMarker":false,"defaultYExtents":false,"setYExtents":false,"yAxis":{}},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"segment","params":{"field":"country","size":5,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title
+    return create_chart(es, saved_search_id, title, visState)
+
+
+def create_publications_chart(es, saved_search_id, title):
+    title = '%s - publications' % title
+    visState = '{"title":"%s","type":"histogram","params":{"shareYAxis":true,"addTooltip":true,"addLegend":true,"scale":"linear","mode":"stacked","times":[],"addTimeMarker":false,"defaultYExtents":false,"setYExtents":false,"yAxis":{}},"aggs":[{"id":"1","type":"count","schema":"metric","params":{}},{"id":"2","type":"terms","schema":"segment","params":{"field":"publication_name","size":5,"order":"desc","orderBy":"1"}}],"listeners":{}}' % title
     return create_chart(es, saved_search_id, title, visState)
 
 
 def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline_chart_id, sites_chart_id,
-                     tagcloud_chart_id, languages_chart_id, countries_chart_id, saved_search_id, title):
+                     tagcloud_chart_id, languages_chart_id, countries_chart_id, publications_chart_id,
+                     saved_search_id, title):
     panels_json = [
         {
             "id": volume_chart_id,
@@ -153,8 +161,7 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline
             "size_y": 4,
             "col": 7,
             "row": 13
-        }
-        ,
+        },
         {
             "id": countries_chart_id,
             "type": "visualization",
@@ -162,6 +169,15 @@ def create_dashboard(es, volume_chart_id, sentiment_chart_id, sentiment_timeline
             "size_x": 6,
             "size_y": 4,
             "col": 1,
+            "row": 17
+        },
+        {
+            "id": publications_chart_id,
+            "type": "visualization",
+            "panelIndex": 9,
+            "size_x": 6,
+            "size_y": 4,
+            "col": 7,
             "row": 17
         }
     ]
