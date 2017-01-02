@@ -1,35 +1,47 @@
-from reportlab.lib.colors import blue, red, lightgrey, white, limegreen, mediumblue, orange
+from reportlab.lib.colors import blue, red, lightgrey, white, limegreen, mediumblue, orange, slategray, toColor
 from reportlab.graphics.charts.lineplots import LinePlot
 from reportlab.graphics.charts.piecharts import Pie
-from reportlab.graphics.charts.barcharts import HorizontalBarChart
-
+from reportlab.graphics.charts.barcharts import HorizontalBarChart, VerticalBarChart
 from reportlab.graphics.charts.legends import LineLegend, Legend
 from reportlab.graphics.shapes import Drawing, _DrawingEditorMixin, Rect, String
 from reportlab.graphics.widgets.markers import makeMarker
 from reportlab.graphics.charts.axes import YValueAxis, NormalDateXValueAxis
+from random import Random
+
+
+random_state_thing = None
+
+
+def my_color_func(word=None, font_size=None, position=None, orientation=None, font_path=None, random_state=None):
+    global random_state_thing
+    if random_state_thing is None:
+        random_state_thing = Random()
+    return "hsl(%d, 60%%, 60%%)" % random_state_thing.randint(0, 255)
 
 
 class MyVolumeChart(_DrawingEditorMixin,Drawing):
     def __init__(self, data=None, legend_data=None):
-        Drawing.__init__(self, width=458, height=180)
+        Drawing.__init__(self, width=458, height=160)
 
-        line_colors = [blue, red, limegreen, orange]
-
-        self._add(self, Rect(x=0,y=0,width=458,height=180,fillColor=white, strokeWidth=0.25), name='border')
-        self._add(self, String(x=229,y=165,text='Volume',textAnchor='middle', fontSize=13, fontName='Helvetica-Bold'), name='title')
+        self._add(self, Rect(x=0,y=0,width=458,height=160,fillColor=white,strokeWidth=0.25,strokeColor=slategray),name='border')
+        self._add(self, Rect(x=0,y=143,width=458,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray),name='border')
+        self._add(self, String(x=20,y=147,text='Volume',fontSize=11,fontName='Helvetica-Bold'),name='title')
 
         # chart
         self._add(self, LinePlot(), name='chart')
         self.chart.y                = 20
-        self.chart.x                = 32
-        self.chart.width            = 353
-        self.chart.height           = 120
+        self.chart.x                = 34
+        self.chart.width            = 351
+        self.chart.height           = 110
 
         # line styles
         self.chart.lines.symbol = makeMarker('Circle', size=2)
-        self.chart.lines[0].strokeColor = blue
+        #self.chart.lines[0].strokeColor = blue
+        #self.chart.lines[0].strokeColor = toColor(my_color_func())
 
+        line_colors = []
         for (i, _) in enumerate(legend_data):
+            line_colors.append(toColor(my_color_func()))
             self.chart.lines[i].strokeColor = line_colors[i]
 
         # x axis
@@ -37,6 +49,8 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
         self.chart.xValueAxis.xLabelFormat          = '{dd} {MMM}'
         self.chart.xValueAxis.loLLen                = 8
         self.chart.xValueAxis.hiLLen                = 5
+        self.chart.xValueAxis.labels.fontName       = 'Helvetica'
+        self.chart.xValueAxis.labels.fontSize       = 9
 
         # y axis
         self.chart.yValueAxis = YValueAxis()
@@ -44,6 +58,8 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
         self.chart.yValueAxis.visibleAxis           = 0
         self.chart.yValueAxis.strokeWidth           = 0.25
         self.chart.yValueAxis.labels.rightPadding   = 5
+        self.chart.yValueAxis.labels.fontName       = 'Helvetica'
+        self.chart.yValueAxis.labels.fontSize       = 9
         self.chart.yValueAxis.rangeRound            = 'both'
         self.chart.yValueAxis.tickLeft              = 7.5
         self.chart.yValueAxis.minimumTickSpacing    = 0.5
@@ -57,6 +73,8 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
         self.legend.x             = 390
         self.legend.dxTextSpace   = 5
         self.legend.columnMaximum = 4
+        self.legend.fontName      = 'Helvetica'
+        self.legend.fontSize      = 9
 
         self.legend.colorNamePairs = zip(line_colors, legend_data)
 
@@ -72,10 +90,10 @@ class MyPieChart(): #_DrawingEditorMixin ,Drawing):
         pie.strokeColor = white
         pie.slices.strokeColor = white
         pie.slices.popout = 1
-        pie.width            = 130
-        pie.height           = 130
+        pie.width            = 100
+        pie.height           = 100
         pie.y                = 50
-        pie.x                = 45
+        pie.x                = 60
 
         legend = Legend()
         legend.columnMaximum       = 99
@@ -93,6 +111,8 @@ class MyPieChart(): #_DrawingEditorMixin ,Drawing):
         legend.subCols[1].align    = 'right'
         legend.y                   = 20
         legend.x                   = 110
+        legend.fontName      = 'Helvetica'
+        legend.fontSize      = 9
 
         pie.data = data
         pie.slices[0].fillColor = lightgrey
@@ -115,7 +135,7 @@ class MyPieChart(): #_DrawingEditorMixin ,Drawing):
 
 
 class MyHBarChart(): #_DrawingEditorMixin,Drawing):
-    def __init__(self, drawing=None, data=None, x=45, y=25, width=170, height=150):
+    def __init__(self, drawing=None, data=None, x=45, y=25, width=170, height=130):
 
         bars = HorizontalBarChart()
         bars.x                   = x
@@ -124,9 +144,42 @@ class MyHBarChart(): #_DrawingEditorMixin,Drawing):
         bars.width               = width
         bars.height              = height
         bars.valueAxis.forceZero = 1
-        bars.bars[0].fillColor   = mediumblue
+        bars.valueAxis.labels.fontName = 'Helvetica'
+        bars.valueAxis.labels.fontSize = 9
+        bars.valueAxis.strokeColor = white
+        #bars.bars[0].fillColor   = mediumblue
+        bars.bars[0].fillColor   = toColor(my_color_func())
+        bars.bars.strokeColor   = white
         bars.categoryAxis.categoryNames = [ key for (key, _) in data ]
         bars.categoryAxis.tickRight = 0
         bars.categoryAxis.tickLeft = 0
+        #bars.categoryAxis.strokeColor = white
+        bars.categoryAxis.labels.fontName = 'Helvetica'
+        bars.categoryAxis.labels.fontSize = 9
+
+        drawing.add(bars)
+
+
+class MyVBarChart(): #_DrawingEditorMixin,Drawing):
+    def __init__(self, drawing=None, data=None, x=20, y=20, width=418, height=80):
+
+        bars = VerticalBarChart()
+        bars.x                   = x
+        bars.y                   = y
+        bars.data                = [[ value for (_, value) in data ]]
+        bars.width               = width
+        bars.height              = height
+        bars.valueAxis.forceZero = 1
+        bars.valueAxis.labels.fontName = 'Helvetica'
+        bars.valueAxis.labels.fontSize = 9
+        bars.valueAxis.strokeColor = white
+        #bars.bars[0].fillColor   = mediumblue
+        bars.bars[0].fillColor   = toColor(my_color_func())
+        bars.bars.strokeColor   = white
+        bars.categoryAxis.categoryNames = [ key for (key, _) in data ]
+        bars.categoryAxis.tickUp = 0
+        bars.categoryAxis.tickDown = 0
+        bars.categoryAxis.labels.fontName = 'Helvetica'
+        bars.categoryAxis.labels.fontSize = 9
 
         drawing.add(bars)

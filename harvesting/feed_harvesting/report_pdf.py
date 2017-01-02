@@ -1,6 +1,6 @@
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.colors import black, white, toColor
-from report_charts import MyVolumeChart, MyPieChart, MyHBarChart
+from reportlab.lib.colors import black, white, toColor, slategray
+from report_charts import MyVolumeChart, MyPieChart, MyHBarChart, MyVBarChart, my_color_func
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, TableStyle
 from reportlab.platypus.tables import Table
 from reportlab.lib.styles import getSampleStyleSheet
@@ -17,29 +17,30 @@ def draw_wordcloud(drawing, cloud, x, y):
 
 
 def generate_report(report, volume_chart_data, volume_legend_data, sentiment_data, cloud_data, sites_data,
-                    languages_data, publication_data, articles):
+                    languages_data, publication_data, rep_data, articles, local_testing=False):
 
-    tmp_file = NamedTemporaryFile(suffix='.pdf', delete=False)
-    #tmp_file = 'report.pdf'
-    #wordcloud_file = NamedTemporaryFile(suffix='.png', delete=True)
+    if not local_testing:
+        tmp_file = NamedTemporaryFile(suffix='.pdf', delete=False)
+    else:
+        tmp_file = 'report.pdf'
 
-    #print 'Writing report to temp file: %s' % tmp_file.name
-
-    cloud = WordCloud(width=215, height=195, background_color='white', max_font_size=32, margin=0,
-                      color_func=get_single_color_func('#000040'), prefer_horizontal=1.0,
-                      relative_scaling=0.4)
+    cloud = WordCloud(width=205, height=145, background_color='white', max_font_size=20, margin=0,
+                      color_func=my_color_func, prefer_horizontal=1.0, relative_scaling=0.4)
     cloud.generate_from_frequencies(cloud_data)
+    #wordcloud_file = NamedTemporaryFile(suffix='.png', delete=True)
     #cloud.to_file(wordcloud_file)
 
-    sentiment_and_cloud = Drawing(width=458, height=220)
-    sentiment_and_cloud.add(Rect(x=0,y=0,width=224,height=220,fillColor=white, strokeWidth=0.25))
-    sentiment_and_cloud.add(String(x=110,y=205,text='Sentiment',textAnchor='middle', fontSize=13, fontName='Helvetica-Bold'))
-    sentiment_and_cloud.add(Rect(x=234,y=0,width=224,height=220,fillColor=white, strokeWidth=0.25))
-    sentiment_and_cloud.add(String(x=344,y=205,text='Trending Words',textAnchor='middle', fontSize=13, fontName='Helvetica-Bold'))
+    sentiment_and_cloud = Drawing(width=458, height=180)
+    sentiment_and_cloud.add(Rect(x=0,y=0,width=224,height=180,fillColor=white, strokeWidth=0.25,strokeColor=slategray))
+    sentiment_and_cloud.add(Rect(x=0,y=163,width=224,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray),name='border')
+    sentiment_and_cloud.add(String(x=20,y=167,text='Sentiment',fontSize=11,fontName='Helvetica-Bold'))
+    sentiment_and_cloud.add(Rect(x=234,y=0,width=224,height=180,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
+    sentiment_and_cloud.add(Rect(x=234,y=163,width=224,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
+    sentiment_and_cloud.add(String(x=254,y=167,text='Trending Words',fontSize=11,fontName='Helvetica-Bold'))
     MyPieChart(drawing=sentiment_and_cloud, data=sentiment_data)
     #sentiment_and_cloud.add(Image(x=240, y=8, width=210, height=185, path=wordcloud_file.name))
 
-    draw_wordcloud(sentiment_and_cloud, cloud, x=240, y=8)
+    draw_wordcloud(sentiment_and_cloud, cloud, x=245, y=13)
 
     styles = getSampleStyleSheet()
 
@@ -48,43 +49,60 @@ def generate_report(report, volume_chart_data, volume_legend_data, sentiment_dat
                             ('FACE', (0, 0), (-1, 0), 'Helvetica-Bold'),
                             ('ALIGN', (1,1), (-1,-1), 'LEFT')])
 
-    languages = Drawing(width=458, height=200)
-    languages.add(Rect(x=0,y=0,width=224,height=200,fillColor=white, strokeWidth=0.25))
-    languages.add(String(x=110,y=185,text='Languages',textAnchor='middle', fontSize=13, fontName='Helvetica-Bold'))
+    languages = Drawing(width=458, height=180)
+    languages.add(Rect(x=0,y=0,width=224,height=180,fillColor=white, strokeWidth=0.25,strokeColor=slategray))
+    languages.add(Rect(x=0,y=163,width=224,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray),name='border')
+    languages.add(String(x=20,y=167,text='Languages',fontSize=11,fontName='Helvetica-Bold'))
     MyHBarChart(drawing=languages, data=languages_data)
-    languages.add(Rect(x=234,y=0,width=224,height=200,fillColor=white, strokeWidth=0.25))
-    languages.add(String(x=344,y=185,text='Publications',textAnchor='middle', fontSize=13, fontName='Helvetica-Bold'))
+    languages.add(Rect(x=234,y=0,width=224,height=180,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
+    languages.add(Rect(x=234,y=163,width=224,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray),name='border')
+    languages.add(String(x=254,y=167,text='Publications',fontSize=11,fontName='Helvetica-Bold'))
     MyHBarChart(drawing=languages, data=publication_data, x=325, width=123)
 
+    rep_drivers = Drawing(width=458, height=125)
+    rep_drivers.add(Rect(x=0,y=0,width=458,height=125,fillColor=white, strokeWidth=0.25,strokeColor=slategray))
+    rep_drivers.add(Rect(x=0,y=108,width=458,height=17,fillColor=white, strokeWidth=0.25,strokeColor=slategray))
+    rep_drivers.add(String(x=20,y=113,text='Reputation Drivers',fontSize=11,fontName='Helvetica-Bold'))
+    MyVBarChart(drawing=rep_drivers, data=rep_data)
+
     elements = [
-        Paragraph('<font size=18 name="Helvetica-Bold">Media Scan: %s</font>' % report.title, styles['Normal']),
-        Spacer(width=1, height=25),
+        Paragraph('<font size=16 name="Helvetica-Bold">Media Scan: %s</font>' % report.title, styles['BodyText']),
+        Spacer(width=1, height=20),
         MyVolumeChart(data=volume_chart_data, legend_data=volume_legend_data),
         Spacer(width=1, height=10),
         sentiment_and_cloud,
         Spacer(width=1, height=10),
         languages,
-        Spacer(width=1, height=15),
-        #Table(data=[('Site', '# Articles')] + sites_data, style=tbl_style),
+        Spacer(width=1, height=10),
+        rep_drivers,
         Table(data=[('Date', 'Publication', 'Title')] + articles, style=tbl_style, colWidths=(2.5*cm, 4*cm, 9.5*cm)),
     ]
 
     def add_header(canvas, doc):
         canvas.saveState()
-        canvas.drawImage('feed_harvesting/static/reportly.png', 20, A4[1]-35, width=85, height=21, mask='auto')
-        #canvas.drawImage('static/reportly.png', 20, A4[1]-35, width=85, height=21, mask='auto')
+        if not local_testing:
+            canvas.drawImage('feed_harvesting/static/reportly.png', 20, A4[1]-35, width=85, height=21, mask='auto')
+        else:
+            canvas.drawImage('static/reportly.png', 20, A4[1]-35, width=85, height=21, mask='auto')
         canvas.setFont('Helvetica', 10)
         canvas.drawRightString(A4[0]-20, A4[1]-25, "www.reportly.nl")
         canvas.drawRightString(A4[0]-20, A4[1]-35, "info@reportly.nl")
+        canvas.line(x1=20, y1=A4[1]-45, x2=A4[0]-20, y2=A4[1]-45)
+        canvas.line(x1=20, y1=45, x2=A4[0]-20, y2=45)
         canvas.restoreState()
 
-    doc = SimpleDocTemplate(tmp_file, pagesize=A4)
+    doc = SimpleDocTemplate(tmp_file, pagesize=A4, initialFontName='Helvetica', topMargin=2*cm, bottomMargin=2*cm)
     doc.build(elements, onFirstPage=add_header, onLaterPages=add_header)
 
-    tmp_file.seek(0)
+    if not local_testing:
+        tmp_file.seek(0)
 
     return tmp_file
 
 #from report_data import generate_report_data
 #from elasticsearch import Elasticsearch
-#generate_report('Trump',*generate_report_data(Elasticsearch(), 'trump'))
+#class Report(object):
+#    title = 'Trump'
+#    query = 'trump'
+#rep = Report()
+#generate_report(rep, *generate_report_data(Elasticsearch(), rep), local_testing=True)

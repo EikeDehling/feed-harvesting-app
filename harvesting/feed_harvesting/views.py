@@ -7,7 +7,7 @@ import os
 
 from .forms import CreateReportForm, CreateComparisonReportForm
 from .report_pdf import generate_report
-from .report_data import generate_report_data
+from .report_data import generate_report_data, generate_copmarison_report_data
 from .models import Report, ComparisonReport
 
 
@@ -21,12 +21,16 @@ class SignupView(FormView):
     form_class = CreateReportForm
     object_class = Report
 
+    def get_report_data(self, report):
+        return generate_report_data(es, report)
+
     def form_valid(self, form):
         # Form filled in correct ; create the report and redirect to success page
 
         obj = self.object_class.objects.create(**form.cleaned_data)
 
-        report = generate_report(obj, *generate_report_data(es, obj))
+        report_data = self.get_report_data(obj)
+        report = generate_report(obj, *report_data)
 
         email = EmailMessage(
             subject='Welcome to reportly',
@@ -46,6 +50,9 @@ class SignupCompareView(SignupView):
     template_name = "signup_compare.html"
     form_class = CreateComparisonReportForm
     object_class = ComparisonReport
+
+    def get_report_data(self, report):
+        return generate_copmarison_report_data(es, report)
 
 
 class SuccessView(TemplateView):

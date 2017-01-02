@@ -1,10 +1,8 @@
 from reportlab.platypus import Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 
-from .models import ComparisonReport
 
-
-INDEX_PATTERN = 'rss-*'
+INDEX_PATTERN = 'rss'
 
 
 def generate_report_data(es, report):
@@ -15,8 +13,133 @@ def generate_report_data(es, report):
                     {
                         'range': {
                             'published': {
-                                'gte': 'now-14d/d',
-                                'lte': 'now/d'
+                                'gte': 'now-60d/d',
+                                'lte': 'now-30d/d'
+                            }
+                        }
+                    },
+                    {
+                        'match': {
+                            '_all': report.query
+                        }
+                    }
+                ]
+            }
+        },
+        'size': 10,
+        'aggs': {
+            'timeline': {
+                'date_histogram': {
+                    'field': 'published',
+                    'interval': 'day',
+                    'format': 'yyyyMMdd'
+                }
+            },
+            'sentiment': {
+                'terms': {
+                    'field': 'sentiment',
+                    'size': 3
+                }
+            },
+            'wordcloud': {
+                'significant_terms': {
+                    'field': 'description',
+                    'size': 25
+                }
+            },
+            'top_sites': {
+                'terms': {
+                    'field': 'site',
+                    'size': 8
+                }
+            },
+            'languages': {
+                'terms': {
+                    'field': 'language',
+                    'size': 4
+                }
+            },
+            'publications': {
+                'terms': {
+                    'field': 'publication_name',
+                    'size': 6
+                }
+            },
+            'reputation_drivers': {
+                'filters': {
+                    'filters': {
+                        'Products/Services': {"match": {"_all": "quality awesome"}},
+                        'Innovation': {"match": {"_all": "innovate innovation"}},
+                        'Workplace': {"match": {"_all": "salary"}},
+                        'Governance': {"match": {"_all": "governance"}},
+                        'Citizenship': {"match": {"_all": "ngo donation donate human rights mvo responsible environment green ecological"}},
+                        'Leadership': {"match": {"_all": "ceo board leader"}},
+                        'Performance': {"match": {"_all": "performance index rising"}}
+                    }
+                }
+            }
+        }
+    }
+
+    data = es.search(index=INDEX_PATTERN, doc_type='posting', body=body)
+
+    volume_legend_data = [ '%s\n(%d hits)' % (report.query, data['hits']['total']) ]
+    volume_chart_data = [[(int(bucket['key_as_string']), int(bucket['doc_count']))
+                           for bucket in data['aggregations']['timeline']['buckets']]]
+
+    sentiments = {}
+    for bucket in data['aggregations']['sentiment']['buckets']:
+        sentiments[bucket['key']] = bucket['doc_count']
+
+    sentiment_data = (float(sentiments.get('neutral', 0)),
+                      float(sentiments.get('positive', 0)),
+                      float(sentiments.get('negative', 0)))
+
+    cloud_data = [(bucket['key'], int((float(bucket['doc_count']) / float(bucket['bg_count'])) * 100.0))
+                  for bucket in data['aggregations']['wordcloud']['buckets']]
+
+    sites_data = [(bucket['key'], int(bucket['doc_count']))
+                  for bucket in data['aggregations']['top_sites']['buckets']]
+
+    langs = dict(
+        en='English',
+        de='German',
+        fr='French',
+        nl='Dutch',
+        it='Italian',
+        se='Spanish'
+    )
+
+    languages_data = [(langs.get(bucket['key'], bucket['key']), int(bucket['doc_count']))
+                      for bucket in data['aggregations']['languages']['buckets']]
+
+    publication_data = [(bucket['key'], int(bucket['doc_count']))
+                        for bucket in data['aggregations']['publications']['buckets']]
+
+    rep_data = [(bucket_name, int(data['aggregations']['reputation_drivers']['buckets'][bucket_name]['doc_count']))
+                 for bucket_name in data['aggregations']['reputation_drivers']['buckets']]
+
+    styles = getSampleStyleSheet()
+
+    articles = [
+        (art['_source']['published'].split('T')[0], art['_source']['publication_name'],
+         Paragraph(art['_source']['title'], styles['Normal'])) for art in data['hits']['hits']
+    ]
+
+    return (volume_chart_data, volume_legend_data, sentiment_data, cloud_data, sites_data,
+            languages_data, publication_data, rep_data, articles)
+
+
+def generate_copmarison_report_data(es, report):
+    body = {
+        'query': {
+            'bool': {
+                'must': [
+                    {
+                        'range': {
+                            'published': {
+                                'gte': 'now-60d/d',
+                                'lte': 'now-30d/d'
                             }
                         }
                     }
@@ -33,9 +156,9 @@ def generate_report_data(es, report):
                 },
                 'aggs': {
                     'hits': {
-                      'top_hits': {
-                          'size': 10
-                      }
+                        'top_hits': {
+                            'size': 10
+                        }
                     },
                     'timeline': {
                         'date_histogram': {
@@ -70,7 +193,7 @@ def generate_report_data(es, report):
                     'publications': {
                         'terms': {
                             'field': 'publication_name',
-                            'size': 7
+                            'size': 6
                         }
                     }
                 }
@@ -105,16 +228,16 @@ def generate_report_data(es, report):
         'main': report.query
     }
 
-    if isinstance(report, ComparisonReport):
-        if report.compare_one:
-            volume_legend_dict['one'] = report.compare_one
-            extend_comparo('one', report.compare_one)
-        if report.compare_two:
-            volume_legend_dict['two'] = report.compare_two
-            extend_comparo('two', report.compare_two)
-        if report.compare_three:
-            volume_legend_dict['three'] = report.compare_three
-            extend_comparo('three', report.compare_three)
+
+    if report.compare_one:
+        volume_legend_dict['one'] = report.compare_one
+        extend_comparo('one', report.compare_one)
+    if report.compare_two:
+        volume_legend_dict['two'] = report.compare_two
+        extend_comparo('two', report.compare_two)
+    if report.compare_three:
+        volume_legend_dict['three'] = report.compare_three
+        extend_comparo('three', report.compare_three)
 
     data = es.search(index=INDEX_PATTERN, doc_type='posting', body=body)
 
@@ -165,7 +288,7 @@ def generate_report_data(es, report):
     articles = [
         (art['_source']['published'].split('T')[0], art['_source']['publication_name'],
          Paragraph(art['_source']['title'], styles['Normal'])) for art in data['hits']['hits']['hits']
-    ]
+        ]
 
     return (volume_chart_data, volume_legend_data, sentiment_data, cloud_data, sites_data,
             languages_data, publication_data, articles)
