@@ -1,11 +1,12 @@
-from reportlab.lib.colors import blue, red, lightgrey, white, limegreen, mediumblue, orange, slategray, toColor
+from reportlab.lib.colors import red, lightgrey, white, limegreen, slategray, toColor
 from reportlab.graphics.charts.lineplots import LinePlot
 from reportlab.graphics.charts.piecharts import Pie
 from reportlab.graphics.charts.barcharts import HorizontalBarChart, VerticalBarChart
 from reportlab.graphics.charts.legends import LineLegend, Legend
-from reportlab.graphics.shapes import Drawing, _DrawingEditorMixin, Rect, String
+from reportlab.graphics.shapes import Drawing, _DrawingEditorMixin, Rect, String, Group
 from reportlab.graphics.widgets.markers import makeMarker
 from reportlab.graphics.charts.axes import YValueAxis, NormalDateXValueAxis
+from reportlab.graphics.widgetbase import Widget
 from random import Random
 
 
@@ -19,13 +20,33 @@ def my_color_func(word=None, font_size=None, position=None, orientation=None, fo
     return "hsl(%d, 60%%, 60%%)" % random_state_thing.randint(0, 255)
 
 
+class MyChartFrame(Widget):
+    x = 0
+    y = 0
+    width = 1
+    height = 1
+    title = None
+
+    def __init__(self, x=0, y=0, width=1, height=1, title=None):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.title = title
+
+    def draw(self):
+        g = Group()
+        g.add(Rect(x=self.x,y=self.y,width=self.width,height=self.height,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
+        g.add(Rect(x=self.x,y=self.y+self.height-17,width=self.width,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
+        g.add(String(x=self.x+20,y=self.y+self.height-12,text=self.title,fontSize=11,fontName='Helvetica-Bold'))
+        return g
+
+
 class MyVolumeChart(_DrawingEditorMixin,Drawing):
     def __init__(self, data=None, legend_data=None):
         Drawing.__init__(self, width=458, height=160)
 
-        self._add(self, Rect(x=0,y=0,width=458,height=160,fillColor=white,strokeWidth=0.25,strokeColor=slategray),name='border')
-        self._add(self, Rect(x=0,y=143,width=458,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray),name='border')
-        self._add(self, String(x=20,y=147,text='Volume',fontSize=11,fontName='Helvetica-Bold'),name='title')
+        self._add(self, MyChartFrame(x=0,y=0,width=458,height=160,title='Volume'), name='frame')
 
         # chart
         self._add(self, LinePlot(), name='chart')
@@ -36,8 +57,6 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
 
         # line styles
         self.chart.lines.symbol = makeMarker('Circle', size=2)
-        #self.chart.lines[0].strokeColor = blue
-        #self.chart.lines[0].strokeColor = toColor(my_color_func())
 
         line_colors = []
         for (i, _) in enumerate(legend_data):

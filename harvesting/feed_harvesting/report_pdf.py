@@ -1,12 +1,12 @@
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.colors import black, white, toColor, slategray
-from report_charts import MyVolumeChart, MyPieChart, MyHBarChart, MyVBarChart, my_color_func
+from reportlab.lib.colors import black, toColor
+from report_charts import MyVolumeChart, MyPieChart, MyHBarChart, MyVBarChart, my_color_func, MyChartFrame
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, TableStyle
 from reportlab.platypus.tables import Table
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import cm
-from reportlab.graphics.shapes import Drawing, Image, Rect, String
-from wordcloud import WordCloud, get_single_color_func
+from reportlab.graphics.shapes import Drawing, String
+from wordcloud import WordCloud
 from tempfile import NamedTemporaryFile
 
 
@@ -27,19 +27,11 @@ def generate_report(report, volume_chart_data, volume_legend_data, sentiment_dat
     cloud = WordCloud(width=205, height=145, background_color='white', max_font_size=20, margin=0,
                       color_func=my_color_func, prefer_horizontal=1.0, relative_scaling=0.4)
     cloud.generate_from_frequencies(cloud_data)
-    #wordcloud_file = NamedTemporaryFile(suffix='.png', delete=True)
-    #cloud.to_file(wordcloud_file)
 
     sentiment_and_cloud = Drawing(width=458, height=180)
-    sentiment_and_cloud.add(Rect(x=0,y=0,width=224,height=180,fillColor=white, strokeWidth=0.25,strokeColor=slategray))
-    sentiment_and_cloud.add(Rect(x=0,y=163,width=224,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray),name='border')
-    sentiment_and_cloud.add(String(x=20,y=167,text='Sentiment',fontSize=11,fontName='Helvetica-Bold'))
-    sentiment_and_cloud.add(Rect(x=234,y=0,width=224,height=180,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
-    sentiment_and_cloud.add(Rect(x=234,y=163,width=224,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
-    sentiment_and_cloud.add(String(x=254,y=167,text='Trending Words',fontSize=11,fontName='Helvetica-Bold'))
+    sentiment_and_cloud.add(MyChartFrame(x=0,y=0,width=224,height=180,title='Sentiment'))
+    sentiment_and_cloud.add(MyChartFrame(x=234,y=0,width=224,height=180,title='Trending Words'))
     MyPieChart(drawing=sentiment_and_cloud, data=sentiment_data)
-    #sentiment_and_cloud.add(Image(x=240, y=8, width=210, height=185, path=wordcloud_file.name))
-
     draw_wordcloud(sentiment_and_cloud, cloud, x=245, y=13)
 
     styles = getSampleStyleSheet()
@@ -50,19 +42,13 @@ def generate_report(report, volume_chart_data, volume_legend_data, sentiment_dat
                             ('ALIGN', (1,1), (-1,-1), 'LEFT')])
 
     languages = Drawing(width=458, height=180)
-    languages.add(Rect(x=0,y=0,width=224,height=180,fillColor=white, strokeWidth=0.25,strokeColor=slategray))
-    languages.add(Rect(x=0,y=163,width=224,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray),name='border')
-    languages.add(String(x=20,y=167,text='Languages',fontSize=11,fontName='Helvetica-Bold'))
+    languages.add(MyChartFrame(x=0,y=0,width=224,height=180,title='Languages'))
+    languages.add(MyChartFrame(x=234,y=0,width=224,height=180,title='Publications'))
     MyHBarChart(drawing=languages, data=languages_data)
-    languages.add(Rect(x=234,y=0,width=224,height=180,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
-    languages.add(Rect(x=234,y=163,width=224,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray),name='border')
-    languages.add(String(x=254,y=167,text='Publications',fontSize=11,fontName='Helvetica-Bold'))
     MyHBarChart(drawing=languages, data=publication_data, x=325, width=123)
 
     rep_drivers = Drawing(width=458, height=125)
-    rep_drivers.add(Rect(x=0,y=0,width=458,height=125,fillColor=white, strokeWidth=0.25,strokeColor=slategray))
-    rep_drivers.add(Rect(x=0,y=108,width=458,height=17,fillColor=white, strokeWidth=0.25,strokeColor=slategray))
-    rep_drivers.add(String(x=20,y=113,text='Reputation Drivers',fontSize=11,fontName='Helvetica-Bold'))
+    rep_drivers.add(MyChartFrame(x=0,y=0,width=458,height=125,title='Reputation Drivers'))
     MyVBarChart(drawing=rep_drivers, data=rep_data)
 
     elements = [
