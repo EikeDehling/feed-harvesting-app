@@ -17,7 +17,7 @@ def draw_wordcloud(drawing, cloud, x, y):
 
 
 def generate_report(report, volume_chart_data, volume_legend_data, sentiment_data, cloud_data, sites_data,
-                    languages_data, publication_data, rep_data, articles, local_testing=False):
+                    languages_data, publication_data, rep_data, media_type_data, articles, local_testing=False):
 
     if not local_testing:
         tmp_file = NamedTemporaryFile(suffix='.pdf', delete=False)
@@ -41,15 +41,21 @@ def generate_report(report, volume_chart_data, volume_legend_data, sentiment_dat
                             ('FACE', (0, 0), (-1, 0), 'Helvetica-Bold'),
                             ('ALIGN', (1,1), (-1,-1), 'LEFT')])
 
-    languages = Drawing(width=458, height=180)
-    languages.add(MyChartFrame(x=0,y=0,width=224,height=180,title='Languages'))
-    languages.add(MyChartFrame(x=234,y=0,width=224,height=180,title='Publications'))
-    MyHBarChart(drawing=languages, data=languages_data)
-    MyHBarChart(drawing=languages, data=publication_data, x=325, width=123)
+    languages_and_publications = Drawing(width=458, height=180)
+    languages_and_publications.add(MyChartFrame(x=0,y=0,width=224,height=180,title='Languages'))
+    languages_and_publications.add(MyChartFrame(x=234,y=0,width=224,height=180,title='Publications'))
+    MyHBarChart(drawing=languages_and_publications, data=languages_data)
+    MyHBarChart(drawing=languages_and_publications, data=publication_data, x=325, width=123)
 
     rep_drivers = Drawing(width=458, height=125)
     rep_drivers.add(MyChartFrame(x=0,y=0,width=458,height=125,title='Reputation Drivers'))
     MyVBarChart(drawing=rep_drivers, data=rep_data)
+
+    media_types_and_sites = Drawing(width=458, height=180)
+    media_types_and_sites.add(MyChartFrame(x=0,y=0,width=224,height=180,title='Media Types'))
+    media_types_and_sites.add(MyChartFrame(x=234,y=0,width=224,height=180,title='Top Sites'))
+    MyHBarChart(drawing=media_types_and_sites, data=media_type_data)
+    MyHBarChart(drawing=media_types_and_sites, data=sites_data, x=353, width=95)
 
     elements = [
         Paragraph('<font size=16 name="Helvetica-Bold">Media Scan: %s</font>' % report.title, styles['BodyText']),
@@ -58,10 +64,12 @@ def generate_report(report, volume_chart_data, volume_legend_data, sentiment_dat
         Spacer(width=1, height=10),
         sentiment_and_cloud,
         Spacer(width=1, height=10),
-        languages,
+        languages_and_publications,
         Spacer(width=1, height=10),
         rep_drivers,
-        Table(data=[('Date', 'Publication', 'Title')] + articles, style=tbl_style, colWidths=(2.5*cm, 4*cm, 9.5*cm)),
+        media_types_and_sites,
+        Spacer(width=1, height=10),
+        Table(data=[('Date', 'Publication', 'Title')] + articles, style=tbl_style, colWidths=(2.2*cm, 4*cm, 9.4*cm)),
     ]
 
     def add_header(canvas, doc):

@@ -166,7 +166,7 @@ class MyHBarChart(): #_DrawingEditorMixin,Drawing):
         bars.valueAxis.labels.fontName = 'Helvetica'
         bars.valueAxis.labels.fontSize = 9
         bars.valueAxis.strokeColor = white
-        #bars.bars[0].fillColor   = mediumblue
+        bars.valueAxis.visibleGrid = 1
         bars.bars[0].fillColor   = toColor(my_color_func())
         bars.bars.strokeColor   = white
         bars.categoryAxis.categoryNames = [ key for (key, _) in data ]
@@ -192,7 +192,7 @@ class MyVBarChart(): #_DrawingEditorMixin,Drawing):
         bars.valueAxis.labels.fontName = 'Helvetica'
         bars.valueAxis.labels.fontSize = 9
         bars.valueAxis.strokeColor = white
-        #bars.bars[0].fillColor   = mediumblue
+        bars.valueAxis.visibleGrid = 1
         bars.bars[0].fillColor   = toColor(my_color_func())
         bars.bars.strokeColor   = white
         bars.categoryAxis.categoryNames = [ key for (key, _) in data ]

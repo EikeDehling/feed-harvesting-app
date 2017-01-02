@@ -50,19 +50,25 @@ def generate_report_data(es, report):
             'top_sites': {
                 'terms': {
                     'field': 'site',
-                    'size': 8
+                    'size': 5
                 }
             },
             'languages': {
                 'terms': {
                     'field': 'language',
-                    'size': 4
+                    'size': 3
+                }
+            },
+            'media_types': {
+                'terms': {
+                    'field': 'media_type',
+                    'size': 0
                 }
             },
             'publications': {
                 'terms': {
                     'field': 'publication_name',
-                    'size': 6
+                    'size': 5
                 }
             },
             'reputation_drivers': {
@@ -116,6 +122,9 @@ def generate_report_data(es, report):
     publication_data = [(bucket['key'], int(bucket['doc_count']))
                         for bucket in data['aggregations']['publications']['buckets']]
 
+    media_type_data = [(bucket['key'], int(bucket['doc_count']))
+                       for bucket in data['aggregations']['media_types']['buckets']]
+
     rep_data = [(bucket_name, int(data['aggregations']['reputation_drivers']['buckets'][bucket_name]['doc_count']))
                  for bucket_name in data['aggregations']['reputation_drivers']['buckets']]
 
@@ -127,7 +136,7 @@ def generate_report_data(es, report):
     ]
 
     return (volume_chart_data, volume_legend_data, sentiment_data, cloud_data, sites_data,
-            languages_data, publication_data, rep_data, articles)
+            languages_data, publication_data, rep_data, media_type_data, articles)
 
 
 def generate_copmarison_report_data(es, report):

@@ -4,6 +4,8 @@ from django.db import models
 
 media_types = (
     ('News', 'News'),
+    ('Blog', 'Blog'),
+    ('Magazine', 'Magazine'),
     ('Radio', 'Radio'),
     ('TV', 'TV'),
     ('Print', 'Print'),
