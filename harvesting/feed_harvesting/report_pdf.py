@@ -1,7 +1,7 @@
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.colors import black, toColor
 from report_charts import MyVolumeChart, MyPieChart, MyHBarChart, MyVBarChart, my_color_func, MyChartFrame
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, TableStyle, XBox, Frame
 from reportlab.platypus.tables import Table
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import cm
@@ -64,13 +64,20 @@ def generate_report(report, volume_chart_data, volume_legend_data, sentiment_dat
         Spacer(width=1, height=10),
         sentiment_and_cloud,
         Spacer(width=1, height=10),
-        languages_and_publications,
-        Spacer(width=1, height=10),
         rep_drivers,
+        Spacer(width=1, height=10),
+        languages_and_publications,
         media_types_and_sites,
         Spacer(width=1, height=10),
         Table(data=[('Date', 'Publication', 'Title')] + articles, style=tbl_style, colWidths=(2.2*cm, 4*cm, 9.4*cm)),
     ]
+
+    #elements = [
+    #    XBox(200, 200),
+    #    XBox(200, 200),
+    #    XBox(200, 200),
+    #    XBox(200, 200),
+    #]
 
     def add_header(canvas, doc):
         canvas.saveState()
@@ -96,7 +103,7 @@ def generate_report(report, volume_chart_data, volume_legend_data, sentiment_dat
 #from report_data import generate_report_data
 #from elasticsearch import Elasticsearch
 #class Report(object):
-#    title = 'Trump'
-#    query = 'trump'
+#    title = 'Samsung'
+#    query = 'samsung'
 #rep = Report()
 #generate_report(rep, *generate_report_data(Elasticsearch(), rep), local_testing=True)

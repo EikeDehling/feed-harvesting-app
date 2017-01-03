@@ -74,13 +74,13 @@ def generate_report_data(es, report):
             'reputation_drivers': {
                 'filters': {
                     'filters': {
-                        'Products/Services': {"match": {"_all": "quality awesome"}},
-                        'Innovation': {"match": {"_all": "innovate innovation"}},
-                        'Workplace': {"match": {"_all": "salary"}},
-                        'Governance': {"match": {"_all": "governance"}},
+                        'Products/Services': {"match": {"_all": "quality product service"}},
+                        'Innovation': {"match": {"_all": "innovate innovation modern hightech hitech creative technology"}},
+                        'Workplace': {"match": {"_all": "salary workplace employer employee motivating"}},
+                        'Governance': {"match": {"_all": "governance regulatory institutionalized corporate participatory"}},
                         'Citizenship': {"match": {"_all": "ngo donation donate human rights mvo responsible environment green ecological"}},
-                        'Leadership': {"match": {"_all": "ceo board leader"}},
-                        'Performance': {"match": {"_all": "performance index rising"}}
+                        'Leadership': {"match": {"_all": "ceo cfo board leader leadership executive chief"}},
+                        'Performance': {"match": {"_all": "performance revenue income turnover quarter growth"}}
                     }
                 }
             }
