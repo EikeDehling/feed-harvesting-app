@@ -2,7 +2,79 @@ from reportlab.platypus import Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 
 
-INDEX_PATTERN = 'rss'
+INDEX_PATTERN = 'rss-*'
+
+
+language_codes_to_name = dict(
+    en='English',
+    de='German',
+    fr='French',
+    nl='Dutch',
+    it='Italian',
+    se='Spanish',
+    id='Indonesian'
+)
+
+
+def _aggregations():
+    return {
+        'timeline': {
+            'date_histogram': {
+                'field': 'published',
+                'interval': 'day',
+                'format': 'yyyyMMdd'
+            }
+        },
+        'sentiment': {
+            'terms': {
+                'field': 'sentiment',
+                'size': 3
+            }
+        },
+        'wordcloud': {
+            'significant_terms': {
+                'field': 'description',
+                'size': 25
+            }
+        },
+        'top_sites': {
+            'terms': {
+                'field': 'site',
+                'size': 5
+            }
+        },
+        'languages': {
+            'terms': {
+                'field': 'language',
+                'size': 3
+            }
+        },
+        'media_types': {
+            'terms': {
+                'field': 'media_type',
+                'size': 0
+            }
+        },
+        'publications': {
+            'terms': {
+                'field': 'publication_name',
+                'size': 5
+            }
+        },
+        'reputation_drivers': {
+            'filters': {
+                'filters': {
+                    'Products/\nServices': {"match": {"_all": "quality product service"}},
+                    'Innovation': {"match": {"_all": "innovate innovation modern hightech hitech creative technology"}},
+                    'Workplace': {"match": {"_all": "salary workplace employer employee motivating"}},
+                    'Governance': {"match": {"_all": "governance regulatory institutionalized corporate participatory"}},
+                    'Citizenship': {"match": {"_all": "ngo donation donate human rights mvo responsible environment green ecological"}},
+                    'Leadership': {"match": {"_all": "ceo cfo board leader leadership executive chief"}},
+                    'Performance': {"match": {"_all": "performance revenue income turnover quarter growth"}}
+                }
+            }
+        }
+    }
 
 
 def generate_report_data(es, report):
@@ -13,8 +85,8 @@ def generate_report_data(es, report):
                     {
                         'range': {
                             'published': {
-                                'gte': 'now-60d/d',
-                                'lte': 'now-30d/d'
+                                'gte': 'now-7d/d',
+                                'lte': 'now'
                             }
                         }
                     },
@@ -27,64 +99,7 @@ def generate_report_data(es, report):
             }
         },
         'size': 10,
-        'aggs': {
-            'timeline': {
-                'date_histogram': {
-                    'field': 'published',
-                    'interval': 'day',
-                    'format': 'yyyyMMdd'
-                }
-            },
-            'sentiment': {
-                'terms': {
-                    'field': 'sentiment',
-                    'size': 3
-                }
-            },
-            'wordcloud': {
-                'significant_terms': {
-                    'field': 'description',
-                    'size': 25
-                }
-            },
-            'top_sites': {
-                'terms': {
-                    'field': 'site',
-                    'size': 5
-                }
-            },
-            'languages': {
-                'terms': {
-                    'field': 'language',
-                    'size': 3
-                }
-            },
-            'media_types': {
-                'terms': {
-                    'field': 'media_type',
-                    'size': 0
-                }
-            },
-            'publications': {
-                'terms': {
-                    'field': 'publication_name',
-                    'size': 5
-                }
-            },
-            'reputation_drivers': {
-                'filters': {
-                    'filters': {
-                        'Products/Services': {"match": {"_all": "quality product service"}},
-                        'Innovation': {"match": {"_all": "innovate innovation modern hightech hitech creative technology"}},
-                        'Workplace': {"match": {"_all": "salary workplace employer employee motivating"}},
-                        'Governance': {"match": {"_all": "governance regulatory institutionalized corporate participatory"}},
-                        'Citizenship': {"match": {"_all": "ngo donation donate human rights mvo responsible environment green ecological"}},
-                        'Leadership': {"match": {"_all": "ceo cfo board leader leadership executive chief"}},
-                        'Performance': {"match": {"_all": "performance revenue income turnover quarter growth"}}
-                    }
-                }
-            }
-        }
+        'aggs': _aggregations()
     }
 
     data = es.search(index=INDEX_PATTERN, doc_type='posting', body=body)
@@ -107,26 +122,17 @@ def generate_report_data(es, report):
     sites_data = [(bucket['key'], int(bucket['doc_count']))
                   for bucket in data['aggregations']['top_sites']['buckets']]
 
-    langs = dict(
-        en='English',
-        de='German',
-        fr='French',
-        nl='Dutch',
-        it='Italian',
-        se='Spanish'
-    )
-
-    languages_data = [(langs.get(bucket['key'], bucket['key']), int(bucket['doc_count']))
+    languages_data = [(language_codes_to_name.get(bucket['key'], bucket['key']), int(bucket['doc_count']))
                       for bucket in data['aggregations']['languages']['buckets']]
 
     publication_data = [(bucket['key'], int(bucket['doc_count']))
-                        for bucket in data['aggregations']['publications']['buckets']]
+                         for bucket in data['aggregations']['publications']['buckets']]
 
     media_type_data = [(bucket['key'], int(bucket['doc_count']))
                        for bucket in data['aggregations']['media_types']['buckets']]
 
-    rep_data = [(bucket_name, int(data['aggregations']['reputation_drivers']['buckets'][bucket_name]['doc_count']))
-                 for bucket_name in data['aggregations']['reputation_drivers']['buckets']]
+    rep_data = [[(bucket_name, int(data['aggregations']['reputation_drivers']['buckets'][bucket_name]['doc_count']))
+                 for bucket_name in data['aggregations']['reputation_drivers']['buckets']]]
 
     styles = getSampleStyleSheet()
 
@@ -135,7 +141,7 @@ def generate_report_data(es, report):
          Paragraph(art['_source']['title'], styles['Normal'])) for art in data['hits']['hits']
     ]
 
-    return (volume_chart_data, volume_legend_data, sentiment_data, cloud_data, sites_data,
+    return (volume_chart_data, volume_legend_data, sentiment_data, None, cloud_data, sites_data,
             languages_data, publication_data, rep_data, media_type_data, articles)
 
 
@@ -147,8 +153,8 @@ def generate_copmarison_report_data(es, report):
                     {
                         'range': {
                             'published': {
-                                'gte': 'now-60d/d',
-                                'lte': 'now-30d/d'
+                                'gte': 'now-7d/d',
+                                'lte': 'now'
                             }
                         }
                     }
@@ -156,87 +162,26 @@ def generate_copmarison_report_data(es, report):
             }
         },
         'size': 0,
-        'aggs': {
-            'main': {
-                'filter': {
-                    'match': {
-                        '_all': report.query
-                    }
-                },
-                'aggs': {
-                    'hits': {
-                        'top_hits': {
-                            'size': 10
-                        }
-                    },
-                    'timeline': {
-                        'date_histogram': {
-                            'field': 'published',
-                            'interval': 'day',
-                            'format': 'yyyyMMdd'
-                        }
-                    },
-                    'sentiment': {
-                        'terms': {
-                            'field': 'sentiment'
-                        }
-                    },
-                    'wordcloud': {
-                        'significant_terms': {
-                            'field': 'description',
-                            'size': 15
-                        }
-                    },
-                    'top_sites': {
-                        'terms': {
-                            'field': 'site',
-                            'size': 8
-                        }
-                    },
-                    'languages': {
-                        'terms': {
-                            'field': 'language',
-                            'size': 4
-                        }
-                    },
-                    'publications': {
-                        'terms': {
-                            'field': 'publication_name',
-                            'size': 6
-                        }
-                    }
-                }
-            }
-        }
+        'aggs': {}
     }
 
     def extend_comparo(name, query):
         body['aggs'][name] = {
             'filter': {
-                'match': {
-                    '_all': query
+                'query_string': {
+                    'query': query
                 }
             },
-            'aggs': {
-                'hits': {
-                    'top_hits': {
-                        'size': 10
-                    }
-                },
-                'timeline': {
-                    'date_histogram': {
-                        'field': 'published',
-                        'interval': 'day',
-                        'format': 'yyyyMMdd'
-                    }
-                }
-            }
+            'aggs': dict(
+                hits = dict(top_hits=dict(size=10)),
+                **_aggregations()
+            )
         }
 
-    volume_legend_dict = {
-        'main': report.query
-    }
+    volume_legend_dict = {}
 
+    volume_legend_dict['main'] = report.query
+    extend_comparo('main', report.query)
 
     if report.compare_one:
         volume_legend_dict['one'] = report.compare_one
@@ -248,20 +193,26 @@ def generate_copmarison_report_data(es, report):
         volume_legend_dict['three'] = report.compare_three
         extend_comparo('three', report.compare_three)
 
-    data = es.search(index=INDEX_PATTERN, doc_type='posting', body=body)
+    benchmark_query = ' '.join(volume_legend_dict.values())
+    volume_legend_dict['benchmark'] = benchmark_query
+    extend_comparo('benchmark', benchmark_query)
+
+    all_data = es.search(index=INDEX_PATTERN, doc_type='posting', body=body)
 
     volume_chart_data = []
     volume_legend_data = []
 
-    for name in data['aggregations']:
-        agg = data['aggregations'][name]
+    for name in all_data['aggregations']:
+        if name == 'benchmark':
+            continue
+        agg = all_data['aggregations'][name]
         volume_legend_data.append('%s\n(%d hits)' % (volume_legend_dict[name],
                                                      agg['hits']['hits']['total']))
         volume_chart_data.append([(int(bucket['key_as_string']), int(bucket['doc_count']))
                                   for bucket in agg['timeline']['buckets']])
 
     # Hack TODO
-    data = data['aggregations']['main']
+    data = all_data['aggregations']['main']
 
     sentiments = {}
     for bucket in data['sentiment']['buckets']:
@@ -271,33 +222,41 @@ def generate_copmarison_report_data(es, report):
                       float(sentiments.get('positive', 0)),
                       float(sentiments.get('negative', 0)))
 
+    sentiments_bench = {}
+    for bucket in all_data['aggregations']['benchmark']['sentiment']['buckets']:
+        sentiments_bench[bucket['key']] = bucket['doc_count']
+
+    sentiment_bench_data = (float(sentiments_bench.get('neutral', 0)),
+                            float(sentiments_bench.get('positive', 0)),
+                            float(sentiments_bench.get('negative', 0)))
+
     cloud_data = [(bucket['key'], int((float(bucket['doc_count']) / float(bucket['bg_count'])) * 100.0))
-                  for bucket in data['wordcloud']['buckets']]
+                  for bucket in all_data['aggregations']['benchmark']['wordcloud']['buckets']]
 
     sites_data = [(bucket['key'], int(bucket['doc_count']))
                   for bucket in data['top_sites']['buckets']]
 
-    langs = dict(
-        en='English',
-        de='German',
-        fr='French',
-        nl='Dutch',
-        it='Italian',
-        se='Spanish'
-    )
-
-    languages_data = [(langs.get(bucket['key'], bucket['key']), int(bucket['doc_count']))
+    languages_data = [(language_codes_to_name.get(bucket['key'], bucket['key']), int(bucket['doc_count']))
                       for bucket in data['languages']['buckets']]
 
-    publication_data = [(bucket['key'], int(bucket['doc_count']))
-                        for bucket in data['publications']['buckets']]
+    publication_data = [(bucket['key'], int(bucket['doc_count'])) for bucket in data['publications']['buckets']]
+
+    media_type_data = [(bucket['key'], int(bucket['doc_count']))
+                       for bucket in data['media_types']['buckets']]
+
+    rep_data = [
+        [(bucket_name, int(data['reputation_drivers']['buckets'][bucket_name]['doc_count']))
+         for bucket_name in data['reputation_drivers']['buckets']],
+        [(bucket_name, int(all_data['aggregations']['benchmark']['reputation_drivers']['buckets'][bucket_name]['doc_count']))
+         for bucket_name in all_data['aggregations']['benchmark']['reputation_drivers']['buckets']]
+    ]
 
     styles = getSampleStyleSheet()
 
     articles = [
         (art['_source']['published'].split('T')[0], art['_source']['publication_name'],
          Paragraph(art['_source']['title'], styles['Normal'])) for art in data['hits']['hits']['hits']
-        ]
+    ]
 
-    return (volume_chart_data, volume_legend_data, sentiment_data, cloud_data, sites_data,
-            languages_data, publication_data, articles)
+    return (volume_chart_data, volume_legend_data, sentiment_data, sentiment_bench_data, cloud_data, sites_data,
+            languages_data, publication_data, rep_data, media_type_data, articles)

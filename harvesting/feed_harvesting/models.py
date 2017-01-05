@@ -5,7 +5,7 @@ from django.db import models
 media_types = (
     ('News', 'News'),
     ('Blog', 'Blog'),
-    ('Magazine', 'Magazine'),
+    ('Trades', 'Trades'),
     ('Radio', 'Radio'),
     ('TV', 'TV'),
     ('Print', 'Print'),
@@ -29,6 +29,8 @@ class Report(models.Model):
     title = models.CharField(max_length=50, null=False, blank=False)
     query = models.CharField(max_length=50, null=False, blank=False)
     company = models.CharField(max_length=50)
+
+    created = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         return '(%d) %s - "%s"' % (self.id, self.title, self.query)

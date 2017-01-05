@@ -1,3 +1,5 @@
+from tempfile import NamedTemporaryFile
+
 from django.template.loader import render_to_string
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
@@ -27,17 +29,18 @@ class SignupView(FormView):
     def form_valid(self, form):
         # Form filled in correct ; create the report and redirect to success page
 
-        obj = self.object_class.objects.create(**form.cleaned_data)
+        report = self.object_class.objects.create(**form.cleaned_data)
 
-        report_data = self.get_report_data(obj)
-        report = generate_report(obj, *report_data)
+        report_data = self.get_report_data(report)
+        report_file = NamedTemporaryFile(suffix='.pdf', delete=False)
+        generate_report(report, report_file, *report_data)
 
         email = EmailMessage(
             subject='Welcome to reportly',
             body=render_to_string('success_mail.txt', context={'name':form.cleaned_data['name']}),
             from_email='Reportly <daan@mediamatters.asia>',
             to=[form.cleaned_data['email']],
-            attachments=[('reportly.pdf', report.read(), 'application/pdf')]
+            attachments=[('reportly.pdf', report_file.read(), 'application/pdf')]
         )
 
         email.send()
