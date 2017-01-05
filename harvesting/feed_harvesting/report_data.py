@@ -119,14 +119,14 @@ def generate_report_data(es, report):
     cloud_data = [(bucket['key'], int((float(bucket['doc_count']) / float(bucket['bg_count'])) * 100.0))
                   for bucket in data['aggregations']['wordcloud']['buckets']]
 
-    sites_data = [(bucket['key'], int(bucket['doc_count']))
-                  for bucket in data['aggregations']['top_sites']['buckets']]
+    sites_data = [[(bucket['key'], int(bucket['doc_count']))
+                   for bucket in data['aggregations']['top_sites']['buckets']]]
 
     languages_data = [(language_codes_to_name.get(bucket['key'], bucket['key']), int(bucket['doc_count']))
                       for bucket in data['aggregations']['languages']['buckets']]
 
-    publication_data = [(bucket['key'], int(bucket['doc_count']))
-                         for bucket in data['aggregations']['publications']['buckets']]
+    publication_data = [[(bucket['key'], int(bucket['doc_count']))
+                         for bucket in data['aggregations']['publications']['buckets']]]
 
     media_type_data = [(bucket['key'], int(bucket['doc_count']))
                        for bucket in data['aggregations']['media_types']['buckets']]
@@ -211,11 +211,8 @@ def generate_copmarison_report_data(es, report):
         volume_chart_data.append([(int(bucket['key_as_string']), int(bucket['doc_count']))
                                   for bucket in agg['timeline']['buckets']])
 
-    # Hack TODO
-    data = all_data['aggregations']['main']
-
     sentiments = {}
-    for bucket in data['sentiment']['buckets']:
+    for bucket in all_data['aggregations']['main']['sentiment']['buckets']:
         sentiments[bucket['key']] = bucket['doc_count']
 
     sentiment_data = (float(sentiments.get('neutral', 0)),
@@ -233,20 +230,25 @@ def generate_copmarison_report_data(es, report):
     cloud_data = [(bucket['key'], int((float(bucket['doc_count']) / float(bucket['bg_count'])) * 100.0))
                   for bucket in all_data['aggregations']['benchmark']['wordcloud']['buckets']]
 
-    sites_data = [(bucket['key'], int(bucket['doc_count']))
-                  for bucket in data['top_sites']['buckets']]
+    sites_data = [[(bucket['key'], int(bucket['doc_count']))
+                   for bucket in all_data['aggregations']['main']['top_sites']['buckets']]]
 
-    languages_data = [(language_codes_to_name.get(bucket['key'], bucket['key']), int(bucket['doc_count']))
-                      for bucket in data['languages']['buckets']]
+    languages_data = [
+        [(language_codes_to_name.get(bucket['key'], bucket['key']), int(bucket['doc_count']))
+         for bucket in all_data['aggregations']['main']['languages']['buckets']],
+        [(language_codes_to_name.get(bucket['key'], bucket['key']), int(bucket['doc_count']))
+         for bucket in all_data['aggregations']['benchmark']['languages']['buckets']],
+    ]
 
-    publication_data = [(bucket['key'], int(bucket['doc_count'])) for bucket in data['publications']['buckets']]
+    publication_data = [[(bucket['key'], int(bucket['doc_count']))
+                         for bucket in all_data['aggregations']['main']['publications']['buckets']]]
 
     media_type_data = [(bucket['key'], int(bucket['doc_count']))
-                       for bucket in data['media_types']['buckets']]
+                       for bucket in all_data['aggregations']['main']['media_types']['buckets']]
 
     rep_data = [
-        [(bucket_name, int(data['reputation_drivers']['buckets'][bucket_name]['doc_count']))
-         for bucket_name in data['reputation_drivers']['buckets']],
+        [(bucket_name, int(all_data['aggregations']['main']['reputation_drivers']['buckets'][bucket_name]['doc_count']))
+         for bucket_name in all_data['aggregations']['main']['reputation_drivers']['buckets']],
         [(bucket_name, int(all_data['aggregations']['benchmark']['reputation_drivers']['buckets'][bucket_name]['doc_count']))
          for bucket_name in all_data['aggregations']['benchmark']['reputation_drivers']['buckets']]
     ]
@@ -255,7 +257,7 @@ def generate_copmarison_report_data(es, report):
 
     articles = [
         (art['_source']['published'].split('T')[0], art['_source']['publication_name'],
-         Paragraph(art['_source']['title'], styles['Normal'])) for art in data['hits']['hits']['hits']
+         Paragraph(art['_source']['title'], styles['Normal'])) for art in all_data['aggregations']['benchmark']['hits']['hits']['hits']
     ]
 
     return (volume_chart_data, volume_legend_data, sentiment_data, sentiment_bench_data, cloud_data, sites_data,

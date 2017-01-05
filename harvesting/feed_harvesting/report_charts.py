@@ -227,12 +227,16 @@ class MySentimentComparoChart():
 
 
 class MyHBarChart(): #_DrawingEditorMixin,Drawing):
-    def __init__(self, drawing=None, data=None, x=45, y=25, width=170, height=130):
+    def __init__(self, drawing=None, title=None, data=None, x=45, y=25, width=170, height=130):
+
+        if len(data) > 1:
+            y = y + 22
+            height = height - 22
 
         bars = HorizontalBarChart()
         bars.x                   = x
         bars.y                   = y
-        bars.data                = [[ value for (_, value) in data ]]
+        bars.data                = [[value for (_, value) in category] for category in data]
         bars.width               = width
         bars.height              = height
         bars.valueAxis.forceZero = 1
@@ -242,12 +246,35 @@ class MyHBarChart(): #_DrawingEditorMixin,Drawing):
         bars.valueAxis.visibleGrid = 1
         bars.bars[0].fillColor   = toColor(my_color_func())
         bars.bars.strokeColor   = white
-        bars.categoryAxis.categoryNames = [key for (key, _) in data]
+        bars.categoryAxis.categoryNames = [ key for (key, _) in data[0] ]
         bars.categoryAxis.tickRight = 0
         bars.categoryAxis.tickLeft = 0
         #bars.categoryAxis.strokeColor = white
         bars.categoryAxis.labels.fontName = 'Helvetica'
         bars.categoryAxis.labels.fontSize = 9
+
+        legend = Legend()
+        legend.y = 25
+        legend.x = 95
+        legend.strokeColor = white
+        legend.alignment = 'right'
+        legend.fontName = 'Helvetica'
+        legend.fontSize = 9
+        legend.dx                  = 6
+        legend.dy                  = 6
+        legend.dxTextSpace         = 5
+        legend.deltay              = 10
+        legend.strokeWidth         = 0
+        legend.strokeColor         = white
+
+        colors = map(toColor, get_n_random_colors(len(data)))
+        for (i, color) in enumerate(colors):
+            bars.bars[i].fillColor = color
+
+        if len(data) > 1:
+            legend_data = (title, 'Benchmark')
+            legend.colorNamePairs = zip(colors, legend_data)
+            drawing.add(legend)
 
         drawing.add(bars)
 

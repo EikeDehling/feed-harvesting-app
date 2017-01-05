@@ -43,8 +43,10 @@ def generate_report(report, the_file, volume_chart_data, volume_legend_data, sen
     languages_and_publications = Drawing(width=458, height=180)
     languages_and_publications.add(MyChartFrame(x=0,y=0,width=224,height=180,title='Languages'))
     languages_and_publications.add(MyChartFrame(x=234,y=0,width=224,height=180,title='Publications'))
-    #MyHBarChart(drawing=languages_and_publications, data=languages_data)
-    MyPieChart(drawing=languages_and_publications, data=languages_data)
+    if sentiment_bench_data:
+        MyHBarChart(drawing=languages_and_publications, title=report.title, data=languages_data)
+    else:
+        MyPieChart(drawing=languages_and_publications, data=languages_data)
     MyHBarChart(drawing=languages_and_publications, data=publication_data, x=325, width=123)
 
     rep_drivers = Drawing(width=458, height=125)

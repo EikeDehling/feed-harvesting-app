@@ -18,11 +18,11 @@ generate_report(rep, file('report.pdf', mode='w+b'), *generate_report_data(Elast
 #    compare_three = 'Lenovo'
 
 class ComparisonReport(object):
-    title = 'Trump'
-    query = 'trump'
-    compare_one = 'Merkel'
-    compare_two = 'Erdogan'
-    compare_three = 'Obama'
+    title = 'Facebook'
+    query = 'facebook'
+    compare_one = 'Twitter'
+    compare_two = 'Whatsapp'
+    compare_three = 'Instagram'
 
 rep = ComparisonReport()
 generate_report(rep, file('report-compare.pdf', mode='w+b'), *generate_copmarison_report_data(Elasticsearch(), rep))
