@@ -91,8 +91,8 @@ def generate_report_data(es, report):
                         }
                     },
                     {
-                        'match': {
-                            '_all': report.query
+                        'query_string': {
+                            'query': report.query
                         }
                     }
                 ]
