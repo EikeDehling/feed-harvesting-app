@@ -169,19 +169,19 @@ class MySentimentComparoChart():
         pie.strokeColor = white
         pie.slices.strokeColor = white
         pie.slices.popout    = 1
-        pie.width            = 75
-        pie.height           = 75
+        pie.width            = 85
+        pie.height           = 85
         pie.y                = 50
-        pie.x                = 25
+        pie.x                = 35
 
         bench_pie = Pie()
         bench_pie.strokeColor        = white
         bench_pie.slices.strokeColor = white
         bench_pie.slices.popout      = 1
-        bench_pie.width              = 75
-        bench_pie.height             = 75
+        bench_pie.width              = 85
+        bench_pie.height             = 85
         bench_pie.y                  = 50
-        bench_pie.x                  = 120
+        bench_pie.x                  = 150
 
         legend = Legend()
         legend.columnMaximum       = 99
@@ -198,7 +198,7 @@ class MySentimentComparoChart():
         legend.subCols[1].minWidth = 25
         legend.subCols[1].align    = 'right'
         legend.y                   = 20
-        legend.x                   = 130
+        legend.x                   = 153
         legend.fontName      = 'Helvetica'
         legend.fontSize      = 9
 
@@ -218,8 +218,8 @@ class MySentimentComparoChart():
                                  (lightgrey, 'Neutral'),
                                  (red, 'Negative')]
 
-        drawing.add(String(x=60,y=135,text=title,fontSize=10,fontName='Helvetica',textAnchor='middle'))
-        drawing.add(String(x=130,y=135,text='Benchmark',fontSize=10,fontName='Helvetica'))
+        drawing.add(String(x=75,y=145,text=title,fontSize=10,fontName='Helvetica',textAnchor='middle'))
+        drawing.add(String(x=165,y=145,text='Benchmark',fontSize=10,fontName='Helvetica'))
 
         drawing.add(pie)
         drawing.add(bench_pie)
