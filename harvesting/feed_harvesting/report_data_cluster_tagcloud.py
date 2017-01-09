@@ -2,7 +2,7 @@ from reportlab.platypus import Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 
 
-INDEX_PATTERN = 'rss-*'
+INDEX_PATTERN = 'rss-2017-01'
 
 
 language_codes_to_name = dict(
@@ -34,15 +34,7 @@ def _aggregations():
         'wordcloud': {
             'significant_terms': {
                 'field': 'description',
-                'size': 25,
-                #'background_filter': {
-                #    'query_string': {
-                #        'query': 'trump'
-                #    }
-                #},
-                "exclude" : {
-                    "pattern": "[0-9]+"
-                }
+                'size': 25
             }
         },
         'top_sites': {
@@ -112,6 +104,43 @@ def generate_report_data(es, report):
 
     data = es.search(index=INDEX_PATTERN, doc_type='posting', body=body)
 
+    body = {
+        "search_request": {
+            "query": {
+                "and": [
+                    {
+                        "match": {
+                            "_all": "donald trump"
+                        }
+                    },
+                    {
+                        'range': {
+                            'published': {
+                                'gte': 'now-2d/d',
+                                'lte': 'now'
+                            }
+                        }
+                    }
+                ]
+            },
+            "size": 10000
+        },
+        "query_hint": "donald trump",
+        "field_mapping": {
+            "title": [ "_source.title" ],
+            "content": [ "_source.description" ]
+        },
+        "algorithm": "lingo",
+        "include_hits": False,
+        "attributes": {
+            "LingoClusteringAlgorithm.desiredClusterCountBase": 20,
+            "LingoClusteringAlgorithm.clusterMergingThreshold": 0.4,
+        }
+    }
+
+    tagcloud_data = es.transport.perform_request('POST', '/rss-2017-01/_search_with_clusters',
+                                                 params={'request_timeout': 30}, body=body)
+
     volume_legend_data = [ '%s\n(%d hits)' % (report.query, data['hits']['total']) ]
     volume_chart_data = [[(int(bucket['key_as_string']), int(bucket['doc_count']))
                            for bucket in data['aggregations']['timeline']['buckets']]]
@@ -124,8 +153,10 @@ def generate_report_data(es, report):
                       float(sentiments.get('positive', 0)),
                       float(sentiments.get('negative', 0)))
 
-    cloud_data = [(bucket['key'], int((float(bucket['doc_count']) / float(bucket['bg_count'])) * 100.0))
-                  for bucket in data['aggregations']['wordcloud']['buckets']]
+    #cloud_data = [(bucket['key'], int((float(bucket['doc_count']) / float(bucket['bg_count'])) * 100.0))
+    #              for bucket in data['aggregations']['wordcloud']['buckets']]
+
+    cloud_data = [(cluster['label'], int(len(cluster['documents']))) for cluster in tagcloud_data['clusters']]
 
     sites_data = [[(bucket['key'], int(bucket['doc_count']))
                    for bucket in data['aggregations']['top_sites']['buckets']]]

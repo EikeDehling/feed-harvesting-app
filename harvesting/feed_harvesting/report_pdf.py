@@ -20,18 +20,18 @@ def generate_report(report, the_file, volume_chart_data, volume_legend_data, sen
                     sites_data, languages_data, publication_data, rep_data, media_type_data, articles):
 
 
-    cloud = WordCloud(width=205, height=145, background_color='white', max_font_size=20, margin=0,
+    cloud = WordCloud(width=235, height=145, background_color='white', max_font_size=20, margin=0,
                       color_func=my_color_func, prefer_horizontal=1.0, relative_scaling=0.4)
     cloud.generate_from_frequencies(cloud_data)
 
-    sentiment_and_cloud = Drawing(width=458, height=180)
-    sentiment_and_cloud.add(MyChartFrame(x=0,y=0,width=224,height=180,title='Sentiment'))
-    sentiment_and_cloud.add(MyChartFrame(x=234,y=0,width=224,height=180,title='Trending Words'))
+    sentiment_and_cloud = Drawing(width=530, height=180)
+    sentiment_and_cloud.add(MyChartFrame(x=0,y=0,width=260,height=180,title='Sentiment'))
+    sentiment_and_cloud.add(MyChartFrame(x=270,y=0,width=260,height=180,title='Trending Words'))
     if sentiment_bench_data:
         MySentimentComparoChart(drawing=sentiment_and_cloud, title=report.title, data=sentiment_data, bench_data=sentiment_bench_data)
     else:
         MySentimentChart(drawing=sentiment_and_cloud, data=sentiment_data)
-    draw_wordcloud(sentiment_and_cloud, cloud, x=245, y=13)
+    draw_wordcloud(sentiment_and_cloud, cloud, x=285, y=13)
 
     styles = getSampleStyleSheet()
 
@@ -40,25 +40,25 @@ def generate_report(report, the_file, volume_chart_data, volume_legend_data, sen
                             ('FACE', (0, 0), (-1, 0), 'Helvetica-Bold'),
                             ('ALIGN', (1,1), (-1,-1), 'LEFT')])
 
-    languages_and_publications = Drawing(width=458, height=180)
-    languages_and_publications.add(MyChartFrame(x=0,y=0,width=224,height=180,title='Languages'))
-    languages_and_publications.add(MyChartFrame(x=234,y=0,width=224,height=180,title='Publications'))
+    languages_and_publications = Drawing(width=530, height=180)
+    languages_and_publications.add(MyChartFrame(x=0,y=0,width=260,height=180,title='Languages'))
+    languages_and_publications.add(MyChartFrame(x=270,y=0,width=260,height=180,title='Publications'))
     if sentiment_bench_data:
         MyHBarChart(drawing=languages_and_publications, title=report.title, data=languages_data)
     else:
         MyPieChart(drawing=languages_and_publications, data=languages_data)
-    MyHBarChart(drawing=languages_and_publications, data=publication_data, x=325, width=123)
+    MyHBarChart(drawing=languages_and_publications, data=publication_data, x=390, width=130)
 
-    rep_drivers = Drawing(width=458, height=125)
-    rep_drivers.add(MyChartFrame(x=0,y=0,width=458,height=125,title='Reputation Drivers'))
+    rep_drivers = Drawing(width=530, height=125)
+    rep_drivers.add(MyChartFrame(x=0,y=0,width=530,height=125,title='Reputation Drivers'))
     MyVBarChart(drawing=rep_drivers, title=report.title, data=rep_data)
 
-    media_types_and_sites = Drawing(width=458, height=180)
-    media_types_and_sites.add(MyChartFrame(x=0,y=0,width=224,height=180,title='Media Types'))
-    media_types_and_sites.add(MyChartFrame(x=234,y=0,width=224,height=180,title='Top Sites'))
+    media_types_and_sites = Drawing(width=528, height=180)
+    media_types_and_sites.add(MyChartFrame(x=0,y=0,width=259,height=180,title='Media Types'))
+    media_types_and_sites.add(MyChartFrame(x=269,y=0,width=259,height=180,title='Top Sites'))
     MyPieChart(drawing=media_types_and_sites, data=media_type_data)
     #MyHBarChart(drawing=media_types_and_sites, data=media_type_data)
-    MyHBarChart(drawing=media_types_and_sites, data=sites_data, x=353, width=95)
+    MyHBarChart(drawing=media_types_and_sites, data=sites_data, x=405, width=115)
 
     elements = [
         Paragraph('<font size=16 name="Helvetica-Bold">Media Scan: %s</font>' % report.title, styles['BodyText']),
@@ -72,15 +72,9 @@ def generate_report(report, the_file, volume_chart_data, volume_legend_data, sen
         languages_and_publications,
         media_types_and_sites,
         Spacer(width=1, height=10),
-        Table(data=[('Date', 'Publication', 'Title')] + articles, style=tbl_style, colWidths=(2.2*cm, 4*cm, 9.4*cm)),
+        Table(data=[('Date', 'Publication', 'Title')] + articles, style=tbl_style,
+              colWidths=(2.5*cm, 4.5*cm, '*'), vAlign='LEFT'),
     ]
-
-    #elements = [
-    #    XBox(200, 200),
-    #    XBox(200, 200),
-    #    XBox(200, 200),
-    #    XBox(200, 200),
-    #]
 
     def add_header(canvas, doc):
         canvas.saveState()
@@ -92,7 +86,8 @@ def generate_report(report, the_file, volume_chart_data, volume_legend_data, sen
         canvas.line(x1=20, y1=45, x2=A4[0]-20, y2=45)
         canvas.restoreState()
 
-    doc = SimpleDocTemplate(the_file, pagesize=A4, initialFontName='Helvetica', topMargin=2*cm, bottomMargin=2*cm)
+    doc = SimpleDocTemplate(the_file, pagesize=A4, initialFontName='Helvetica',
+                            topMargin=2*cm, bottomMargin=2*cm, leftMargin=1*cm, rightMargin=1*cm)
     doc.build(elements, onFirstPage=add_header, onLaterPages=add_header)
 
     the_file.seek(0)

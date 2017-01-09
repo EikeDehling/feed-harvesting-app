@@ -1,0 +1,102 @@
+{
+  "settings": {
+    "index": {
+      "number_of_replicas": "0",
+      "number_of_shards": "1"
+    },
+    "analysis": {
+      "analyzer": {
+        "shingle_bells": {
+          "tokenizer": "standard",
+          "filter": [
+            "standard",
+            "lowercase",
+            "filter_shingle"
+          ],
+          "char_filter": [
+            "html_strip",
+            "stopwords"
+          ]
+        }
+      },
+      "filter": {
+        "filter_shingle": {
+          "type": "shingle",
+          "max_shingle_size": 4,
+          "min_shingle_size": 2,
+          "output_unigrams": true
+        }
+      },
+      "char_filter" : {
+        "stopwords" : {
+          "type" : "pattern_replace",
+          "pattern" : "\\b(jan|feb|mar|apr|mai|jun|jul|aug|sept|oct|nov|dec|\\d+|sunday|monday|tuesday|wednesday|thursday|friday|saturday|a|about|an|are|as|at|be|by|com|for|from|how|in|is|it|of|on|or|that|the|this|to|was|what|when|where|who|will|with|the)\\b",
+          "replacement" : " ",
+          "flags": "CASE_INSENSITIVE|UNICODE_CASE|MULTILINE"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "posting": {
+      "dynamic": false,
+      "properties": {
+        "publication_name": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "site": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "sentiment": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "title": {
+          "type": "string",
+          "copy_to": "tagcloud",
+          "fielddata": {
+            "format": "disabled"
+          }
+        },
+        "media_type": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "copy_to": "tagcloud",
+          "fielddata": {
+            "format": "disabled"
+          }
+        },
+        "link": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "image": {
+          "index": "not_analyzed",
+          "doc_values": false,
+          "type": "string"
+        },
+        "language": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "published": {
+          "format": "strict_date_optional_time||epoch_millis",
+          "type": "date"
+        },
+        "country": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "tagcloud": {
+          "type": "string",
+          "analyzer": "shingle_bells"
+        }
+      }
+    }
+  }
+}

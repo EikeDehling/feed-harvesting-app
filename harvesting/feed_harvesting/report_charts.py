@@ -46,21 +46,21 @@ class MyChartFrame(Widget):
         g = Group()
         g.add(Rect(x=self.x,y=self.y,width=self.width,height=self.height,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
         g.add(Rect(x=self.x,y=self.y+self.height-17,width=self.width,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
-        g.add(String(x=self.x+20,y=self.y+self.height-12,text=self.title,fontSize=11,fontName='Helvetica-Bold'))
+        g.add(String(x=self.x+20,y=self.y+self.height-12,text=self.title,fontSize=10,fontName='Helvetica'))
         return g
 
 
 class MyVolumeChart(_DrawingEditorMixin,Drawing):
     def __init__(self, data=None, legend_data=None):
-        Drawing.__init__(self, width=458, height=160)
+        Drawing.__init__(self, width=530, height=160)
 
-        self._add(self, MyChartFrame(x=0,y=0,width=458,height=160,title='Volume'), name='frame')
+        self._add(self, MyChartFrame(x=0,y=0,width=530,height=160,title='Volume'), name='frame')
 
         # chart
         self._add(self, LinePlot(), name='chart')
         self.chart.y                = 20
         self.chart.x                = 34
-        self.chart.width            = 351
+        self.chart.width            = 423
         self.chart.height           = 110
 
         # line styles
@@ -96,7 +96,7 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
         self._add(self, LineLegend(), name='legend')
         self.legend.alignment     ='right'
         self.legend.y             = 110
-        self.legend.x             = 390
+        self.legend.x             = 462
         self.legend.dxTextSpace   = 5
         self.legend.columnMaximum = 4
         self.legend.fontName      = 'Helvetica'
@@ -119,7 +119,7 @@ class MySentimentChart(): #_DrawingEditorMixin ,Drawing):
         pie.width            = 100
         pie.height           = 100
         pie.y                = 50
-        pie.x                = 60
+        pie.x                = 80
 
         legend = Legend()
         legend.columnMaximum       = 99
@@ -136,7 +136,7 @@ class MySentimentChart(): #_DrawingEditorMixin ,Drawing):
         legend.subCols[1].minWidth = 25
         legend.subCols[1].align    = 'right'
         legend.y                   = 20
-        legend.x                   = 110
+        legend.x                   = 128
         legend.fontName      = 'Helvetica'
         legend.fontSize      = 9
 
@@ -280,10 +280,10 @@ class MyHBarChart(): #_DrawingEditorMixin,Drawing):
 
 
 class MyVBarChart():
-    def __init__(self, drawing=None, title=None, data=None, x=20, y=30, width=418, height=70):
+    def __init__(self, drawing=None, title=None, data=None, x=25, y=30, width=490, height=70):
 
         if len(data) > 1:
-            width -= 50
+            width -= 65
 
         bars = VerticalBarChart()
         bars.x                   = x
@@ -306,7 +306,7 @@ class MyVBarChart():
 
         legend = Legend()
         legend.y = 70
-        legend.x = 390
+        legend.x = 457
         legend.strokeColor = white
         legend.alignment = 'right'
         legend.fontName = 'Helvetica'
@@ -325,7 +325,7 @@ class MyVBarChart():
 
 
 class MyPieChart():
-    def __init__(self, drawing=None, data=None, x=60, y=25, width=110, height=110):
+    def __init__(self, drawing=None, data=None, x=70, y=25, width=115, height=115):
 
         pie = Pie()
         pie.strokeColor        = white

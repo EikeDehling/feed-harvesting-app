@@ -2,13 +2,11 @@ from feed_harvesting.report_data import generate_report_data, generate_copmariso
 from feed_harvesting.report_pdf import generate_report
 from elasticsearch import Elasticsearch
 
-
 class Report(object):
     title = 'Trump'
     query = 'trump'
 rep = Report()
 generate_report(rep, file('report.pdf', mode='w+b'), *generate_report_data(Elasticsearch(), rep))
-
 
 #class ComparisonReport(object):
 #    title = 'Samsung'
