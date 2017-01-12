@@ -22,21 +22,20 @@ def draw_wordcloud(drawing, cloud, x, y):
                            fontName='Lato-Bold',fillColor=toColor(color)))
 
 
-def generate_report(report, the_file, volume_chart_data, volume_legend_data, sentiment_data, sentiment_bench_data, cloud_data,
-                    sites_data, languages_data, publication_data, rep_data, media_type_data, articles):
+def generate_report(report, the_file, report_data):
 
 
     cloud = WordCloud(width=235, height=145, background_color='white', max_font_size=20, margin=0,
                       color_func=my_color_func, prefer_horizontal=1.0, relative_scaling=0.4)
-    cloud.generate_from_frequencies(cloud_data)
+    cloud.generate_from_frequencies(report_data['wordcloud_data'])
 
     sentiment_and_cloud = Drawing(width=530, height=180)
     sentiment_and_cloud.add(MyChartFrame(x=0,y=0,width=260,height=180,title='Sentiment'))
     sentiment_and_cloud.add(MyChartFrame(x=270,y=0,width=260,height=180,title='Trending Words'))
-    if sentiment_bench_data:
-        MySentimentComparoChart(drawing=sentiment_and_cloud, title=report.title, data=sentiment_data, bench_data=sentiment_bench_data)
+    if report_data.get('sentiment_bench_data', None):
+        MySentimentComparoChart(drawing=sentiment_and_cloud, title=report.title, data=report_data['sentiment_data'], bench_data=report_data['sentiment_bench_data'])
     else:
-        MySentimentChart(drawing=sentiment_and_cloud, data=sentiment_data)
+        MySentimentChart(drawing=sentiment_and_cloud, data=report_data['sentiment_data'])
     draw_wordcloud(sentiment_and_cloud, cloud, x=285, y=13)
 
     styles = getSampleStyleSheet()
@@ -51,32 +50,32 @@ def generate_report(report, the_file, volume_chart_data, volume_legend_data, sen
     languages_and_publications = Drawing(width=530, height=180)
     languages_and_publications.add(MyChartFrame(x=0,y=0,width=260,height=180,title='Languages'))
     languages_and_publications.add(MyChartFrame(x=270,y=0,width=260,height=180,title='Publications'))
-    if sentiment_bench_data:
-        MyHBarChart(drawing=languages_and_publications, title=report.title, data=languages_data)
+    if report_data.get('sentiment_bench_data', None):
+        MyHBarChart(drawing=languages_and_publications, title=report.title, data=report_data['languages_data'])
     else:
-        MyPieChart(drawing=languages_and_publications, data=languages_data)
-    MyHBarChart(drawing=languages_and_publications, data=publication_data, x=390, width=130)
+        MyPieChart(drawing=languages_and_publications, data=report_data['languages_data'])
+    MyHBarChart(drawing=languages_and_publications, data=report_data['publication_data'], x=390, width=130)
 
     rep_drivers = Drawing(width=530, height=125)
     rep_drivers.add(MyChartFrame(x=0,y=0,width=530,height=125,title='Reputation Drivers'))
-    MyVBarChart(drawing=rep_drivers, title=report.title, data=rep_data)
+    MyVBarChart(drawing=rep_drivers, title=report.title, data=report_data['reputation_data'])
 
     media_types_and_sites = Drawing(width=528, height=180)
     media_types_and_sites.add(MyChartFrame(x=0,y=0,width=259,height=180,title='Media Types'))
     media_types_and_sites.add(MyChartFrame(x=269,y=0,width=259,height=180,title='Top Sites'))
-    MyPieChart(drawing=media_types_and_sites, data=media_type_data)
+    MyPieChart(drawing=media_types_and_sites, data=report_data['media_type_data'])
     #MyHBarChart(drawing=media_types_and_sites, data=media_type_data)
-    MyHBarChart(drawing=media_types_and_sites, data=sites_data, x=405, width=115)
+    MyHBarChart(drawing=media_types_and_sites, data=report_data['sites_data'], x=405, width=115)
 
     articles = [
         [Paragraph(item, styles['LatoNormal']) for item in article]
-        for article in articles
+        for article in report_data['articles']
     ]
 
     elements = [
         Paragraph('Media Scan: %s' % report.title, styles['LatoTitle']),
         Spacer(width=1, height=20),
-        MyVolumeChart(data=volume_chart_data, legend_data=volume_legend_data),
+        MyVolumeChart(data=report_data['volume_chart_data'], legend_data=report_data['volume_legend_data']),
         Spacer(width=1, height=10),
         sentiment_and_cloud,
         Spacer(width=1, height=10),

@@ -26,6 +26,9 @@ class SignupView(FormView):
     def get_report_data(self, report):
         return generate_report_data(es, report)
 
+    def generate_report(self, report, file, data):
+        generate_report(report, file, data)
+
     def form_valid(self, form):
         # Form filled in correct ; create the report and redirect to success page
 
@@ -33,7 +36,7 @@ class SignupView(FormView):
 
         report_data = self.get_report_data(report)
         report_file = NamedTemporaryFile(suffix='.pdf', delete=False)
-        generate_report(report, report_file, *report_data)
+        self.generate_report(report, report_file, report_data)
 
         email = EmailMessage(
             subject='Welcome to reportly',

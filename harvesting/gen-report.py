@@ -6,7 +6,7 @@ class Report(object):
     title = 'Trump'
     query = 'trump'
 rep = Report()
-generate_report(rep, file('report.pdf', mode='w+b'), *generate_report_data(Elasticsearch(), rep))
+generate_report(rep, file('report.pdf', mode='w+b'), generate_report_data(Elasticsearch(), rep))
 
 #class ComparisonReport(object):
 #    title = 'Samsung'
@@ -23,4 +23,4 @@ class ComparisonReport(object):
     compare_three = 'Instagram'
 
 rep = ComparisonReport()
-generate_report(rep, file('report-compare.pdf', mode='w+b'), *generate_copmarison_report_data(Elasticsearch(), rep))
+generate_report(rep, file('report-compare.pdf', mode='w+b'), generate_copmarison_report_data(Elasticsearch(), rep))

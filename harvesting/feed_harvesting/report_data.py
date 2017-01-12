@@ -145,8 +145,18 @@ def generate_report_data(es, report):
         for art in data['hits']['hits']
     ]
 
-    return (volume_chart_data, volume_legend_data, sentiment_data, None, cloud_data, sites_data,
-            languages_data, publication_data, rep_data, media_type_data, articles)
+    return {
+        'volume_chart_data': volume_chart_data,
+        'volume_legend_data': volume_legend_data,
+        'sentiment_data': sentiment_data,
+        'wordcloud_data': cloud_data,
+        'sites_data': sites_data,
+        'languages_data': languages_data,
+        'publication_data': publication_data,
+        'reputation_data': rep_data,
+        'media_type_data': media_type_data,
+        'articles': articles
+    }
 
 
 def generate_copmarison_report_data(es, report):
@@ -262,5 +272,16 @@ def generate_copmarison_report_data(es, report):
         for art in all_data['aggregations']['benchmark']['hits']['hits']['hits']
     ]
 
-    return (volume_chart_data, volume_legend_data, sentiment_data, sentiment_bench_data, cloud_data, sites_data,
-            languages_data, publication_data, rep_data, media_type_data, articles)
+    return {
+        'volume_chart_data': volume_chart_data,
+        'volume_legend_data': volume_legend_data,
+        'sentiment_data': sentiment_data,
+        'sentiment_bench_data': sentiment_bench_data,
+        'wordcloud_data': cloud_data,
+        'sites_data': sites_data,
+        'languages_data': languages_data,
+        'publication_data': publication_data,
+        'reputation_data': rep_data,
+        'media_type_data': media_type_data,
+        'articles': articles
+    }
