@@ -46,7 +46,7 @@ class MyChartFrame(Widget):
         g = Group()
         g.add(Rect(x=self.x,y=self.y,width=self.width,height=self.height,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
         g.add(Rect(x=self.x,y=self.y+self.height-17,width=self.width,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
-        g.add(String(x=self.x+20,y=self.y+self.height-12,text=self.title,fontSize=10,fontName='Lato'))
+        g.add(String(x=self.x+20,y=self.y+self.height-12,text=self.title,fontSize=9,fontName='Lato'))
         return g
 
 

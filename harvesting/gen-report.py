@@ -7,8 +7,8 @@ from elasticsearch import Elasticsearch
 es = Elasticsearch()
 
 class Report(object):
-    title = 'Putin'
-    query = 'putin'
+    title = 'Obama'
+    query = 'obama'
 rep = Report()
 generate_report(rep, file('report.pdf', mode='w+b'), generate_report_data(es, rep))
 

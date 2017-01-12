@@ -33,7 +33,7 @@ def generate_report(report, the_file, report_data):
     sentiment_and_cloud.add(MyChartFrame(x=0,y=0,width=260,height=180,title='Sentiment'))
     sentiment_and_cloud.add(MyChartFrame(x=270,y=0,width=260,height=180,title='Trending Words'))
     if report_data.get('sentiment_bench_data', None):
-        MySentimentComparoChart(drawing=sentiment_and_cloud, title=report.title, data=report_data['sentiment_data'], bench_data=report_data['sentiment_bench_data'])
+        MySentimentComparoChart(drawing=sentiment_and_cloud, title=report.query, data=report_data['sentiment_data'], bench_data=report_data['sentiment_bench_data'])
     else:
         MySentimentChart(drawing=sentiment_and_cloud, data=report_data['sentiment_data'])
     draw_wordcloud(sentiment_and_cloud, cloud, x=285, y=13)
@@ -51,13 +51,13 @@ def generate_report(report, the_file, report_data):
     languages_and_publications.add(MyChartFrame(x=0,y=0,width=260,height=180,title='Languages'))
     languages_and_publications.add(MyChartFrame(x=270,y=0,width=260,height=180,title='Publications'))
     if report_data.get('sentiment_bench_data', None):
-        MyHBarChart(drawing=languages_and_publications, title=report.title, data=report_data['languages_data'])
+        MyHBarChart(drawing=languages_and_publications, title=report.query, data=report_data['languages_data'])
     else:
         MyPieChart(drawing=languages_and_publications, data=report_data['languages_data'])
     MyHBarChart(drawing=languages_and_publications, data=report_data['publication_data'], x=390, width=130)
 
     rep_drivers = Drawing(width=530, height=125)
-    rep_drivers.add(MyChartFrame(x=0,y=0,width=530,height=125,title='Reputation Drivers'))
+    rep_drivers.add(MyChartFrame(x=0,y=0,width=530,height=125,title='Brand Pillars'))
     MyVBarChart(drawing=rep_drivers, title=report.title, data=report_data['reputation_data'])
 
     media_types_and_sites = Drawing(width=528, height=180)
