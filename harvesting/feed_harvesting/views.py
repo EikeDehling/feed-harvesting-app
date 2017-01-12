@@ -41,7 +41,7 @@ class SignupView(FormView):
         email = EmailMessage(
             subject='Welcome to reportly',
             body=render_to_string('success_mail.txt', context={'name':form.cleaned_data['name']}),
-            from_email='Reportly <daan@mediamatters.asia>',
+            from_email='Reportly <reportly16@gmail.com>',
             to=[form.cleaned_data['email']],
             attachments=[('reportly.pdf', report_file.read(), 'application/pdf')]
         )

@@ -285,3 +285,92 @@ def generate_copmarison_report_data(es, report):
         'media_type_data': media_type_data,
         'articles': articles
     }
+
+
+def generate_extended_report_data(es, report):
+    body = {
+        'query': {
+            'bool': {
+                'must': [
+                    {
+                        'range': {
+                            'published': {
+                                'gte': 'now-7d/d',
+                                'lte': 'now'
+                            }
+                        }
+                    },
+                    {
+                        'query_string': {
+                            'query': report.query
+                        }
+                    }
+                ]
+            }
+        },
+        'size': 10,
+        'aggs': {
+            'timeline': {
+                'date_histogram': {
+                    'field': 'published',
+                    'interval': 'day',
+                    'format': 'yyyyMMdd'
+                }
+            }
+        }
+    }
+
+    data = es.search(index=INDEX_PATTERN, doc_type='posting', body=body)
+
+    body = {
+        'query': {
+            'bool': {
+                'must': [
+                    {
+                        'range': {
+                            'published': {
+                                'gte': 'now-30d/d',
+                                'lte': 'now'
+                            }
+                        }
+                    },
+                    {
+                        'query_string': {
+                            'query': report.query
+                        }
+                    }
+                ]
+            }
+        },
+        'size': 10,
+        'aggs': {
+            'timeline': {
+                'date_histogram': {
+                    'field': 'published',
+                    'interval': 'day',
+                    'format': 'yyyyMMdd'
+                }
+            },
+            'volume_stats': {
+                'extended_stats_bucket': {
+                    'buckets_path': 'timeline._count',
+                    'sigma': 1.5
+                }
+            }
+        }
+    }
+
+    data_month = es.search(index=INDEX_PATTERN, doc_type='posting', body=body)
+
+    volume_legend_data = [ '%s\n(%d hits)' % (report.query, data['hits']['total']) ]
+    volume_chart_data = [[(int(bucket['key_as_string']), int(bucket['doc_count']))
+                          for bucket in data['aggregations']['timeline']['buckets']]]
+
+    volume_stats_data = data_month['aggregations']['volume_stats']
+
+
+    return {
+        'volume_chart_data': volume_chart_data,
+        'volume_legend_data': volume_legend_data,
+        'volume_stats_data': volume_stats_data
+    }

@@ -108,6 +108,50 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
         self.chart.data = data
 
 
+class MyPlainVolumeChart(_DrawingEditorMixin,Drawing):
+    def __init__(self, data=None):
+        Drawing.__init__(self, width=530, height=130)
+
+        # chart
+        self._add(self, LinePlot(), name='chart')
+        self.chart.y                = 20
+        self.chart.x                = 80
+        self.chart.width            = 380
+        self.chart.height           = 100
+
+        # line styles
+        self.chart.lines.symbol = makeMarker('Circle', size=2)
+
+        colors = map(toColor, get_n_random_colors(len(data)))
+        for (i, _) in enumerate(data):
+            self.chart.lines[i].strokeColor = colors[i]
+
+        # x axis
+        self.chart.xValueAxis = NormalDateXValueAxis()
+        self.chart.xValueAxis.xLabelFormat          = '{dd} {MMM}'
+        self.chart.xValueAxis.loLLen                = 8
+        self.chart.xValueAxis.hiLLen                = 5
+        self.chart.xValueAxis.labels.fontName       = 'Lato'
+        self.chart.xValueAxis.labels.fontSize       = 9
+
+        # y axis
+        self.chart.yValueAxis = YValueAxis()
+        self.chart.yValueAxis.visibleGrid           = 1
+        self.chart.yValueAxis.visibleAxis           = 0
+        self.chart.yValueAxis.strokeWidth           = 0.25
+        self.chart.yValueAxis.labels.rightPadding   = 5
+        self.chart.yValueAxis.labels.fontName       = 'Lato'
+        self.chart.yValueAxis.labels.fontSize       = 9
+        self.chart.yValueAxis.rangeRound            = 'both'
+        self.chart.yValueAxis.tickLeft              = 7.5
+        self.chart.yValueAxis.minimumTickSpacing    = 0.5
+        self.chart.yValueAxis.maximumTicks          = 8
+        self.chart.yValueAxis.avoidBoundFrac        = 0.1
+
+        # Data...
+        self.chart.data = data
+
+
 class MySentimentChart(): #_DrawingEditorMixin ,Drawing):
     def __init__(self, drawing=None, data=None):
         #Drawing.__init__(self, width=100, height=175)
