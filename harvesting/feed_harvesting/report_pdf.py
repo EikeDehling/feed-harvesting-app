@@ -68,7 +68,7 @@ def generate_report(report, the_file, report_data):
     MyHBarChart(drawing=media_types_and_sites, data=report_data['sites_data'], x=405, width=115)
 
     articles = [
-        [Paragraph(item, styles['LatoNormal']) for item in article]
+        [Paragraph(item or '', styles['LatoNormal']) for item in article]
         for article in report_data['articles']
     ]
 

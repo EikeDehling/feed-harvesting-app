@@ -9,7 +9,9 @@ import os
 
 from .forms import CreateReportForm, CreateComparisonReportForm
 from .report_pdf import generate_report
-from .report_data import generate_report_data, generate_copmarison_report_data
+from .report_extended_pdf import generate_extended_report
+from .report_data import generate_report_data, generate_copmarison_report_data,\
+    generate_extended_report_data
 from .models import Report, ComparisonReport
 
 
@@ -59,6 +61,19 @@ class SignupCompareView(SignupView):
 
     def get_report_data(self, report):
         return generate_copmarison_report_data(es, report)
+
+
+class SignupExtendedView(SignupView):
+
+    template_name = "signup.html"
+    form_class = CreateReportForm
+    object_class = Report
+
+    def get_report_data(self, report):
+        return generate_copmarison_report_data(es, report)
+
+    def generate_report(self, report, file, data):
+        generate_extended_report(report, file, data)
 
 
 class SuccessView(TemplateView):
