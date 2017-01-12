@@ -1,5 +1,3 @@
-from reportlab.platypus import Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
 
 
 INDEX_PATTERN = 'rss-*'
@@ -142,11 +140,9 @@ def generate_report_data(es, report):
     rep_data = [[(bucket_name, int(data['aggregations']['reputation_drivers']['buckets'][bucket_name]['doc_count']))
                  for bucket_name in data['aggregations']['reputation_drivers']['buckets']]]
 
-    styles = getSampleStyleSheet()
-
     articles = [
-        (art['_source']['published'].split('T')[0], art['_source']['publication_name'],
-         Paragraph(art['_source']['title'], styles['Normal'])) for art in data['hits']['hits']
+        (art['_source']['published'].split('T')[0], art['_source']['publication_name'], art['_source']['title'])
+        for art in data['hits']['hits']
     ]
 
     return (volume_chart_data, volume_legend_data, sentiment_data, None, cloud_data, sites_data,
@@ -261,11 +257,9 @@ def generate_copmarison_report_data(es, report):
          for bucket_name in all_data['aggregations']['benchmark']['reputation_drivers']['buckets']]
     ]
 
-    styles = getSampleStyleSheet()
-
     articles = [
-        (art['_source']['published'].split('T')[0], art['_source']['publication_name'],
-         Paragraph(art['_source']['title'], styles['Normal'])) for art in all_data['aggregations']['benchmark']['hits']['hits']['hits']
+        (art['_source']['published'].split('T')[0], art['_source']['publication_name'], art['_source']['title'])
+        for art in all_data['aggregations']['benchmark']['hits']['hits']['hits']
     ]
 
     return (volume_chart_data, volume_legend_data, sentiment_data, sentiment_bench_data, cloud_data, sites_data,

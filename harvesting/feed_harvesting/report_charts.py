@@ -46,7 +46,7 @@ class MyChartFrame(Widget):
         g = Group()
         g.add(Rect(x=self.x,y=self.y,width=self.width,height=self.height,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
         g.add(Rect(x=self.x,y=self.y+self.height-17,width=self.width,height=17,fillColor=white,strokeWidth=0.25,strokeColor=slategray))
-        g.add(String(x=self.x+20,y=self.y+self.height-12,text=self.title,fontSize=10,fontName='Helvetica'))
+        g.add(String(x=self.x+20,y=self.y+self.height-12,text=self.title,fontSize=10,fontName='Lato'))
         return g
 
 
@@ -75,7 +75,7 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
         self.chart.xValueAxis.xLabelFormat          = '{dd} {MMM}'
         self.chart.xValueAxis.loLLen                = 8
         self.chart.xValueAxis.hiLLen                = 5
-        self.chart.xValueAxis.labels.fontName       = 'Helvetica'
+        self.chart.xValueAxis.labels.fontName       = 'Lato'
         self.chart.xValueAxis.labels.fontSize       = 9
 
         # y axis
@@ -84,7 +84,7 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
         self.chart.yValueAxis.visibleAxis           = 0
         self.chart.yValueAxis.strokeWidth           = 0.25
         self.chart.yValueAxis.labels.rightPadding   = 5
-        self.chart.yValueAxis.labels.fontName       = 'Helvetica'
+        self.chart.yValueAxis.labels.fontName       = 'Lato'
         self.chart.yValueAxis.labels.fontSize       = 9
         self.chart.yValueAxis.rangeRound            = 'both'
         self.chart.yValueAxis.tickLeft              = 7.5
@@ -99,7 +99,7 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
         self.legend.x             = 462
         self.legend.dxTextSpace   = 5
         self.legend.columnMaximum = 4
-        self.legend.fontName      = 'Helvetica'
+        self.legend.fontName      = 'Lato'
         self.legend.fontSize      = 9
 
         self.legend.colorNamePairs = zip(colors, legend_data)
@@ -137,7 +137,7 @@ class MySentimentChart(): #_DrawingEditorMixin ,Drawing):
         legend.subCols[1].align    = 'right'
         legend.y                   = 20
         legend.x                   = 128
-        legend.fontName      = 'Helvetica'
+        legend.fontName      = 'Lato'
         legend.fontSize      = 9
 
         pie.data = data
@@ -199,7 +199,7 @@ class MySentimentComparoChart():
         legend.subCols[1].align    = 'right'
         legend.y                   = 20
         legend.x                   = 153
-        legend.fontName      = 'Helvetica'
+        legend.fontName      = 'Lato'
         legend.fontSize      = 9
 
         pie.data = data
@@ -218,8 +218,8 @@ class MySentimentComparoChart():
                                  (lightgrey, 'Neutral'),
                                  (red, 'Negative')]
 
-        drawing.add(String(x=75,y=145,text=title,fontSize=10,fontName='Helvetica',textAnchor='middle'))
-        drawing.add(String(x=165,y=145,text='Benchmark',fontSize=10,fontName='Helvetica'))
+        drawing.add(String(x=75,y=145,text=title,fontSize=10,fontName='Lato',textAnchor='middle'))
+        drawing.add(String(x=165,y=145,text='Benchmark',fontSize=10,fontName='Lato'))
 
         drawing.add(pie)
         drawing.add(bench_pie)
@@ -240,7 +240,7 @@ class MyHBarChart(): #_DrawingEditorMixin,Drawing):
         bars.width               = width
         bars.height              = height
         bars.valueAxis.forceZero = 1
-        bars.valueAxis.labels.fontName = 'Helvetica'
+        bars.valueAxis.labels.fontName = 'Lato'
         bars.valueAxis.labels.fontSize = 9
         bars.valueAxis.strokeColor = white
         bars.valueAxis.visibleGrid = 1
@@ -250,7 +250,7 @@ class MyHBarChart(): #_DrawingEditorMixin,Drawing):
         bars.categoryAxis.tickRight = 0
         bars.categoryAxis.tickLeft = 0
         #bars.categoryAxis.strokeColor = white
-        bars.categoryAxis.labels.fontName = 'Helvetica'
+        bars.categoryAxis.labels.fontName = 'Lato'
         bars.categoryAxis.labels.fontSize = 9
 
         legend = Legend()
@@ -258,7 +258,7 @@ class MyHBarChart(): #_DrawingEditorMixin,Drawing):
         legend.x = 95
         legend.strokeColor = white
         legend.alignment = 'right'
-        legend.fontName = 'Helvetica'
+        legend.fontName = 'Lato'
         legend.fontSize = 9
         legend.dx                  = 6
         legend.dy                  = 6
@@ -292,7 +292,7 @@ class MyVBarChart():
         bars.width               = width
         bars.height              = height
         bars.valueAxis.forceZero = 1
-        bars.valueAxis.labels.fontName = 'Helvetica'
+        bars.valueAxis.labels.fontName = 'Lato'
         bars.valueAxis.labels.fontSize = 9
         bars.valueAxis.strokeColor = white
         bars.valueAxis.visibleGrid = 1
@@ -301,7 +301,7 @@ class MyVBarChart():
         bars.categoryAxis.categoryNames = [ key for (key, _) in data[0] ]
         bars.categoryAxis.tickUp = 0
         bars.categoryAxis.tickDown = 0
-        bars.categoryAxis.labels.fontName = 'Helvetica'
+        bars.categoryAxis.labels.fontName = 'Lato'
         bars.categoryAxis.labels.fontSize = 9
 
         legend = Legend()
@@ -309,7 +309,7 @@ class MyVBarChart():
         legend.x = 457
         legend.strokeColor = white
         legend.alignment = 'right'
-        legend.fontName = 'Helvetica'
+        legend.fontName = 'Lato'
         legend.fontSize = 9
 
         colors = map(toColor, get_n_random_colors(len(data)))
@@ -336,7 +336,7 @@ class MyPieChart():
         pie.y                  = y
         pie.x                  = x
         pie.sideLabels         = 1
-        pie.slices.fontName    = 'Helvetica'
+        pie.slices.fontName    = 'Lato'
         pie.slices.fontSize    = 9
 
         colors = get_n_random_colors(len(data))

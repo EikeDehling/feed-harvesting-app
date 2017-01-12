@@ -4,16 +4,22 @@ from report_charts import MyVolumeChart, MySentimentChart, MyHBarChart, MyVBarCh
     MyPieChart, MySentimentComparoChart
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, TableStyle, XBox, Frame
 from reportlab.platypus.tables import Table
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm
 from reportlab.graphics.shapes import Drawing, String
 from wordcloud import WordCloud
 
 
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+pdfmetrics.registerFont(TTFont("Lato", "feed_harvesting/static/Lato-Regular.ttf"))
+pdfmetrics.registerFont(TTFont("Lato-Bold", "feed_harvesting/static/Lato-Bold.ttf"))
+
+
 def draw_wordcloud(drawing, cloud, x, y):
     for (word, count), font_size, position, orientation, color in cloud.layout_:
         drawing.add(String(x=x+position[1],y=y+position[0],text=word,fontSize=font_size,
-                           fontName='Helvetica-Bold',fillColor=toColor(color)))
+                           fontName='Lato-Bold',fillColor=toColor(color)))
 
 
 def generate_report(report, the_file, volume_chart_data, volume_legend_data, sentiment_data, sentiment_bench_data, cloud_data,
@@ -34,10 +40,12 @@ def generate_report(report, the_file, volume_chart_data, volume_legend_data, sen
     draw_wordcloud(sentiment_and_cloud, cloud, x=285, y=13)
 
     styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name='LatoNormal', parent=styles['Normal'], fontName='Lato'))
+    styles.add(ParagraphStyle(name='LatoTitle', parent=styles['Normal'], fontName='Lato-Bold', fontSize=16))
 
     tbl_style = TableStyle([('INNERGRID', (0,0), (-1,-1), 0.25, black),
                             ('BOX', (0,0), (-1,-1), 0.25, black),
-                            ('FACE', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                            ('FACE', (0, 0), (-1, 0), 'Lato-Bold'),
                             ('ALIGN', (1,1), (-1,-1), 'LEFT')])
 
     languages_and_publications = Drawing(width=530, height=180)
@@ -60,8 +68,13 @@ def generate_report(report, the_file, volume_chart_data, volume_legend_data, sen
     #MyHBarChart(drawing=media_types_and_sites, data=media_type_data)
     MyHBarChart(drawing=media_types_and_sites, data=sites_data, x=405, width=115)
 
+    articles = [
+        [Paragraph(item, styles['LatoNormal']) for item in article]
+        for article in articles
+    ]
+
     elements = [
-        Paragraph('<font size=16 name="Helvetica-Bold">Media Scan: %s</font>' % report.title, styles['BodyText']),
+        Paragraph('Media Scan: %s' % report.title, styles['LatoTitle']),
         Spacer(width=1, height=20),
         MyVolumeChart(data=volume_chart_data, legend_data=volume_legend_data),
         Spacer(width=1, height=10),
@@ -79,14 +92,14 @@ def generate_report(report, the_file, volume_chart_data, volume_legend_data, sen
     def add_header(canvas, doc):
         canvas.saveState()
         canvas.drawImage('feed_harvesting/static/reportly.png', 20, A4[1]-35, width=85, height=21, mask='auto')
-        canvas.setFont('Helvetica', 10)
+        canvas.setFont('Lato', 10)
         canvas.drawRightString(A4[0]-20, A4[1]-25, "www.reportly.nl")
         canvas.drawRightString(A4[0]-20, A4[1]-35, "info@reportly.nl")
         canvas.line(x1=20, y1=A4[1]-45, x2=A4[0]-20, y2=A4[1]-45)
         canvas.line(x1=20, y1=45, x2=A4[0]-20, y2=45)
         canvas.restoreState()
 
-    doc = SimpleDocTemplate(the_file, pagesize=A4, initialFontName='Helvetica',
+    doc = SimpleDocTemplate(the_file, pagesize=A4, initialFontName='Lato',
                             topMargin=2*cm, bottomMargin=2*cm, leftMargin=1*cm, rightMargin=1*cm)
     doc.build(elements, onFirstPage=add_header, onLaterPages=add_header)
 
