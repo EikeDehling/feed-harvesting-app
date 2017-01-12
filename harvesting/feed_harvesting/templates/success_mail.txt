@@ -2,7 +2,7 @@ Hi {{ name }}!
 
 Thanks for signing up to reportly. Your first personal media scan is attached to this email.
 
-If your have any questions contact us at reportly@mediamatters.com
+If your have any questions contact us at reportly16@gmail.com
 
 Best regards,
 Team Reportly
