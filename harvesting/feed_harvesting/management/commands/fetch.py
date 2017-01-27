@@ -34,6 +34,7 @@ feedparser.registerDateHandler(asiaone_date_handler)
 feedparser.registerDateHandler(thestar_date_handler)
 feedparser.registerDateHandler(hmetro_date_handler)
 
+
 class Command(BaseCommand):
     help = 'Harvest all the feeds configured in the database'    
 
@@ -45,7 +46,7 @@ class Command(BaseCommand):
 
         es.indices.create(index=index, ignore=400)
 
-        for f in RssFeed.objects.all():
+        for f in RssFeed.objects.filter(enabled=True):
             logger.info('Parsing feed - %s' % f.url)
 
             try:

@@ -7,3 +7,9 @@ class CreateReportForm(forms.Form):
     name = forms.CharField(min_length=3, max_length=50, required=True)
     email = forms.EmailField(required=True)
     company = forms.CharField(min_length=3, max_length=50, required=False)
+
+
+class CreateComparisonReportForm(CreateReportForm):
+    compare_one = forms.CharField(min_length=3, max_length=50, required=True)
+    compare_two = forms.CharField(min_length=3, max_length=50, required=False)
+    compare_three = forms.CharField(min_length=3, max_length=50, required=False)
