@@ -1,4 +1,4 @@
-
+from operator import itemgetter
 
 INDEX_PATTERN = 'rss-*'
 
@@ -308,7 +308,7 @@ def generate_extended_report_data(es, report):
                 ]
             }
         },
-        'size': 10,
+        'size': 0,
         'aggs': {
             'timeline': {
                 'date_histogram': {
@@ -342,7 +342,7 @@ def generate_extended_report_data(es, report):
                 ]
             }
         },
-        'size': 10,
+        'size': 0,
         'aggs': {
             'timeline': {
                 'date_histogram': {
@@ -368,9 +368,83 @@ def generate_extended_report_data(es, report):
 
     volume_stats_data = data_month['aggregations']['volume_stats']
 
+    highest_day, highest_volume = max(volume_chart_data[0], key=itemgetter(1))
+
+    body = {
+        'query': {
+            'bool': {
+                'must': [
+                    {
+                        'range': {
+                            'published': {
+                                'gte': '%d||/d' % highest_day,
+                                'lte': '%d||/d' % highest_day,
+                                'format': 'yyyyMMdd'
+                            }
+                        }
+                    },
+                    {
+                        'query_string': {
+                            'query': report.query
+                        }
+                    }
+                ]
+            }
+        },
+        'size': 0,
+        'aggs': {
+            'keywords': {
+                'significant_terms': {
+                    'field': 'description'
+                }
+            }
+        }
+    }
+
+    data_highest = es.search(index=INDEX_PATTERN, doc_type='posting', body=body)
+
+    keywords_highest = [bucket['key'] for bucket in data_highest['aggregations']['keywords']['buckets']]
+
+    body = {
+        'query': {
+            'bool': {
+                'must': [
+                    {
+                        'range': {
+                            'published': {
+                                'gte': '%d||/d' % highest_day,
+                                'lte': '%d||/d' % highest_day,
+                                'format': 'yyyyMMdd'
+                            }
+                        }
+                    },
+                    {
+                        'query_string': {
+                            'query': report.query
+                        }
+                    }
+                ],
+                'should': [
+                    {
+                        'match': {
+                            'query': ' '.join(keywords_highest)
+                        }
+                    }
+                ]
+            }
+        },
+        'size': 5
+    }
+
+    data_articles_highest = es.search(index=INDEX_PATTERN, doc_type='posting', body=body)
+
+    titles_highest = [ art['_source']['title'] for art in data_articles_highest['hits']['hits'] ]
 
     return {
         'volume_chart_data': volume_chart_data,
         'volume_legend_data': volume_legend_data,
-        'volume_stats_data': volume_stats_data
+        'volume_stats_data': volume_stats_data,
+        'highest_day': highest_day,
+        'keywords_highest': keywords_highest,
+        'titles_highest': titles_highest
     }

@@ -1,7 +1,7 @@
 from reportlab.lib.pagesizes import A4
 from report_charts import MyPlainVolumeChart
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListFlowable
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle, ListStyle
 from reportlab.lib.units import cm
 
 
@@ -16,6 +16,7 @@ def generate_extended_report(report, the_file, report_data):
     styles = getSampleStyleSheet()
     styles.add(ParagraphStyle(name='LatoNormal', parent=styles['Normal'], fontName='Lato'))
     styles.add(ParagraphStyle(name='LatoTitle', parent=styles['Normal'], fontName='Lato-Bold', fontSize=16))
+    styles.add(ListStyle(name='LatoList', bulletFontName='Lato', bulletType='bullet'))
 
     volume_explanation = \
 """
@@ -39,6 +40,13 @@ this week there where {outside_conf} days where the volume of articles was excep
         Spacer(width=1, height=20),
         MyPlainVolumeChart(data=report_data['volume_chart_data']),
         Paragraph(volume_explanation, styles['LatoNormal']),
+        Spacer(width=1, height=10),
+        Paragraph('On %d, the day with highest volume, the top articles were:' % report_data['highest_day'], styles['LatoNormal']),
+        ListFlowable(
+            [ Paragraph(title, styles['LatoNormal']) for title in report_data['titles_highest'] ],
+            start=None,
+            style=styles['LatoList']
+        )
     ]
 
     def add_header(canvas, doc):
@@ -51,8 +59,7 @@ this week there where {outside_conf} days where the volume of articles was excep
         canvas.line(x1=20, y1=45, x2=A4[0]-20, y2=45)
         canvas.restoreState()
 
-    doc = SimpleDocTemplate(the_file, pagesize=A4, initialFontName='Lato',
-                            topMargin=2*cm, bottomMargin=2*cm, leftMargin=1*cm, rightMargin=1*cm)
+    doc = SimpleDocTemplate(the_file, pagesize=A4, initialFontName='Lato')
     doc.build(elements, onFirstPage=add_header, onLaterPages=add_header)
 
     the_file.seek(0)

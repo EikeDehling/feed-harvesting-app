@@ -110,13 +110,13 @@ class MyVolumeChart(_DrawingEditorMixin,Drawing):
 
 class MyPlainVolumeChart(_DrawingEditorMixin,Drawing):
     def __init__(self, data=None):
-        Drawing.__init__(self, width=530, height=130)
+        Drawing.__init__(self, width=458, height=130)
 
         # chart
         self._add(self, LinePlot(), name='chart')
         self.chart.y                = 20
-        self.chart.x                = 80
-        self.chart.width            = 380
+        self.chart.x                = 60
+        self.chart.width            = 320
         self.chart.height           = 100
 
         # line styles
