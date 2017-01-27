@@ -1,11 +1,18 @@
+from tempfile import NamedTemporaryFile
+
 from django.template.loader import render_to_string
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 import elasticsearch
 import os
 
-from . import forms, kibana_helper, skedler_helper
+from .forms import CreateReportForm, CreateComparisonReportForm
+from .report_pdf import generate_report
+from .report_extended_pdf import generate_extended_report
+from .report_data import generate_report_data, generate_copmarison_report_data,\
+    generate_extended_report_data
+from .models import Report, ComparisonReport
 
 
 es = elasticsearch.Elasticsearch(os.environ.get('ES_URL', 'http://localhost:9200'))
@@ -15,38 +22,58 @@ class SignupView(FormView):
 
     template_name = "signup.html"
     success_url = "/success/"
-    form_class = forms.CreateReportForm
+    form_class = CreateReportForm
+    object_class = Report
+
+    def get_report_data(self, report):
+        return generate_report_data(es, report)
+
+    def generate_report(self, report, file, data):
+        generate_report(report, file, data)
 
     def form_valid(self, form):
         # Form filled in correct ; create the report and redirect to success page
 
-        saved_search_id = kibana_helper.create_saved_search(es, form.cleaned_data['title'],
-                                                            form.cleaned_data['query'])
+        report = self.object_class.objects.create(**form.cleaned_data)
 
-        volume_chart_id = kibana_helper.create_volume_chart(es, saved_search_id, form.cleaned_data['title'])
-        sentiment_chart_id = kibana_helper.create_sentiment_chart(es, saved_search_id, form.cleaned_data['title'])
-        sentiment_timeline_chart_id = kibana_helper.create_sentiment_timeline_chart(es, saved_search_id, form.cleaned_data['title'])
-        sites_chart_id = kibana_helper.create_top_sites_chart(es, saved_search_id, form.cleaned_data['title'])
-        tagcloud_chart_id = kibana_helper.create_tagcloud_chart(es, saved_search_id, form.cleaned_data['title'])
-        languages_chart_id = kibana_helper.create_languages_chart(es, saved_search_id, form.cleaned_data['title'])
-        countries_chart_id = kibana_helper.create_countries_chart(es, saved_search_id, form.cleaned_data['title'])
+        report_data = self.get_report_data(report)
+        report_file = NamedTemporaryFile(suffix='.pdf', delete=False)
+        self.generate_report(report, report_file, report_data)
 
-        dashboard_id = kibana_helper.create_dashboard(es, volume_chart_id, sentiment_chart_id,
-                                                      sentiment_timeline_chart_id, sites_chart_id,
-                                                      tagcloud_chart_id, languages_chart_id, countries_chart_id,
-                                                      saved_search_id, form.cleaned_data['title'])
-
-        skedler_helper.schedule_report(es, form.cleaned_data['title'], form.cleaned_data['email'], dashboard_id)
-
-        send_mail(
-            'Welcome to reportly',
-            render_to_string('success_mail.txt', context={'name':form.cleaned_data['name']}),
-            'Reportly <daan@mediamatters.asia>',
-            [form.cleaned_data['email']],
-            fail_silently=False
+        email = EmailMessage(
+            subject='Welcome to reportly',
+            body=render_to_string('success_mail.txt', context={'name':form.cleaned_data['name']}),
+            from_email='Reportly <reportly16@gmail.com>',
+            to=[form.cleaned_data['email']],
+            attachments=[('reportly.pdf', report_file.read(), 'application/pdf')]
         )
 
+        email.send()
+
         return super(SignupView, self).form_valid(form)
+
+
+class SignupCompareView(SignupView):
+
+    template_name = "signup_compare.html"
+    form_class = CreateComparisonReportForm
+    object_class = ComparisonReport
+
+    def get_report_data(self, report):
+        return generate_copmarison_report_data(es, report)
+
+
+class SignupExtendedView(SignupView):
+
+    template_name = "signup.html"
+    form_class = CreateReportForm
+    object_class = Report
+
+    def get_report_data(self, report):
+        return generate_copmarison_report_data(es, report)
+
+    def generate_report(self, report, file, data):
+        generate_extended_report(report, file, data)
 
 
 class SuccessView(TemplateView):
